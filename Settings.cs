@@ -15,6 +15,8 @@ namespace GNSUsingCS
 
         public static float RepeatKeyTime = 0.02f;
         public static float FirstRepeatKeyTime = 0.4f;
+        public static float MouseScrollVelocityDropoff = 0.8f;
+        public static float mouseScrollSensitivity = 2.4f;
     }
 }
 

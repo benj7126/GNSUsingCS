@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace GNSUsingCS.Elements
 {
+    // TODO: Maby add padding?
     enum Wrapping
     {
         CharWrapping, // normal(?) wrapping
@@ -24,12 +25,17 @@ namespace GNSUsingCS.Elements
         private static int _cursorPosition = 0;
         private static int _cursorVisualX = -1;
         private static int _cursorVisualY = -1;
+        private static int _savedCursorVisualX = -1;
         private static int _highlightChar = -1;
 
         private int _cursorCharacter => Text[_cursorPosition];
         private bool _doDrawCursor => InputManager.CheckSelected(this);
 
         public Wrapping Wrapping = 0;
+
+        private Vector2 _mouseScrollVel = new();
+        private Vector2 _scroll = new();
+        private Vector2 _scrollRoom = new();
 
         public override List<Element> Children => [Box];
 
@@ -47,6 +53,40 @@ namespace GNSUsingCS.Elements
             Box.Draw();
             // DrawTextEx(FontManager.GetFont(FontType, FontSize), Text, new Vector2(Dimensions.X, Dimensions.Y), FontSize, Spacing, Color);
             DrawCodepoints();
+
+            if (IsHovered)
+            {
+                if (_scrollRoom.Y > 0)
+                {
+                    float totalTextPercent = (_scrollRoom.Y + Dimensions.H) / Dimensions.H;
+
+                    int scrollBarCoverage = (int)(Dimensions.H * (1f / totalTextPercent));
+
+                    float rest = Dimensions.H - scrollBarCoverage;
+
+                    int extraY = (int)(rest * (_scroll.Y / _scrollRoom.Y));
+
+                    DrawRectangle(Dimensions.X + Dimensions.W - 4, Dimensions.Y + extraY, 4, scrollBarCoverage, Color.Gray);
+                }
+
+                if (_scrollRoom.X > 0)
+                {
+                    float totalTextPercent = (_scrollRoom.X + Dimensions.W) / Dimensions.W;
+
+                    int scrollBarCoverage = (int)(Dimensions.W * (1f / totalTextPercent));
+
+                    float rest = Dimensions.W - scrollBarCoverage;
+
+                    int extraX = (int)(rest * (_scroll.X / _scrollRoom.X));
+
+                    DrawRectangle(Dimensions.X + extraX, Dimensions.Y + Dimensions.H - 4, scrollBarCoverage, 4, Color.Gray);
+                }
+            }
+
+            if (InputManager.CheckSelected(this))
+            {
+                DrawRectangle(Dimensions.X + _cursorVisualX - (int)_scroll.X, Dimensions.Y + _cursorVisualY - (int)_scroll.Y, 1, FontSize, Color.Gray);
+            }
         }
 
         public override void Update()
@@ -56,10 +96,25 @@ namespace GNSUsingCS.Elements
                 _cursorPosition = 0;
                 _cursorVisualX = -1;
                 _cursorVisualY = -1;
+                _savedCursorVisualX = -1;
                 _highlightChar = -1;
                 InputManager.SetInput(this);
                 PrepTextboxDraw();
             }
+
+            Vector2 mouseWheelMove = new(0f, GetMouseWheelMoveV().Y);
+
+            if (IsKeyDown(KeyboardKey.LeftShift) || IsKeyDown(KeyboardKey.RightShift))
+            {
+                mouseWheelMove.X = mouseWheelMove.Y;
+                mouseWheelMove.Y = 0f;
+            }
+
+            _mouseScrollVel *= Settings.MouseScrollVelocityDropoff;
+            _mouseScrollVel += mouseWheelMove * Settings.mouseScrollSensitivity;
+
+            _scroll.X = MathF.Max(MathF.Min(_scroll.X - _mouseScrollVel.X, _scrollRoom.X), 0f);
+            _scroll.Y = MathF.Max(MathF.Min(_scroll.Y - _mouseScrollVel.Y, _scrollRoom.Y), 0f);
         }
 
         public void IncommingCharacter(char character)
@@ -82,7 +137,29 @@ namespace GNSUsingCS.Elements
                 _cursorPosition = _cursorPosition == 0 ? 0 : _cursorPosition - 1;
             }
 
-            Console.WriteLine("S: " + key.ToString());
+            Vector2? updateFakeCursorPosition = null;
+            if (key == KeyboardKey.Up || key == KeyboardKey.Down)
+            {
+                if (_savedCursorVisualX == -1)
+                {
+                    _savedCursorVisualX = _cursorVisualX;
+                }
+
+                if (key == KeyboardKey.Up)
+                {
+                    updateFakeCursorPosition = new(_savedCursorVisualX, _cursorVisualY - FontSize * 0.5f);
+                }
+                if (key == KeyboardKey.Down)
+                {
+                    updateFakeCursorPosition = new(_savedCursorVisualX, _cursorVisualY + FontSize * 1.5f);
+                }
+            }
+            else
+            {
+                _savedCursorVisualX = -1;
+            }
+
+
             if (key == KeyboardKey.Backspace && _cursorPosition != 0)
             {
                 Text = Text.Remove(_cursorPosition - 1, 1);
@@ -99,7 +176,7 @@ namespace GNSUsingCS.Elements
                 _cursorPosition++;
             }
 
-            PrepTextboxDraw();
+            PrepTextboxDraw(updateFakeCursorPosition);
         }
         private bool InBetween(int val, int v1, int v2)
         {
@@ -138,7 +215,7 @@ namespace GNSUsingCS.Elements
 
                     if ((cp != ' ') && (cp != '\t'))
                     {
-                        DrawTextCodepoint(font, cp, new(Dimensions.X + textOffsetX, Dimensions.Y + textOffsetY), FontSize, Color.Black);
+                        DrawTextCodepoint(font, cp, new Vector2(Dimensions.X + textOffsetX, Dimensions.Y + textOffsetY) - _scroll, FontSize, Color.Black);
                     }
 
                     // std::cout << curIndex << " is " << (curIndex == cursorPosition) << std::endl;
@@ -162,11 +239,39 @@ namespace GNSUsingCS.Elements
             }
         }
 
+        private void InsertBuffer(List<int> lineBuffer, List<Tuple<int, float>> codepointBuffer, Vector2 mPos, ref int curIndex, ref float textOffsetX, ref bool setCursor, float textOffsetY)
+        {
+            foreach (Tuple<int, float> cpNWidth in codepointBuffer)
+            {
+                if (setCursor)
+                {
+                    if (mPos.Y < textOffsetY + LineSpacing + FontSize && mPos.X < textOffsetX + cpNWidth.Item2 / 2f)
+                    {
+                        _cursorPosition = curIndex;
+                        setCursor = false;
+                    }
+                }
+
+                if (curIndex == _cursorPosition && _cursorVisualX == -1 && InputManager.CheckSelected(this))
+                {
+                    _cursorVisualX = (int)textOffsetX;
+                    _cursorVisualY = (int)textOffsetY;
+                }
+
+                curIndex++;
+                textOffsetX += cpNWidth.Item2;
+
+                lineBuffer.Add(cpNWidth.Item1);
+            }
+
+            Console.WriteLine("x; " + textOffsetX);
+        }
+
         // figure type out later
         /// <summary>
         /// Handles some logic and prepeares the text to be drawn.
         /// </summary>
-        unsafe private void PrepTextboxDraw()
+        unsafe private void PrepTextboxDraw(Vector2? cursorPos = null)
         {
             Console.WriteLine("Clear");
             _lines.Clear();
@@ -176,28 +281,44 @@ namespace GNSUsingCS.Elements
 
             uint size = TextLength(cText);    // Total size in bytes of the text, scanned by codepoints in loop
 
-            List<int> codepointBuffer = [];
+            List<Tuple<int, float>> codepointBuffer = [];
             List<int> lineBuffer = [];
             float codepointBufferWidth = 0;
             float curLineWidth = 0;
 
-            float nextCharWidth = 0;
-
             int curIndex = 0;
 
-            float textOffsetY = 0;       // Offset between lines (on linebreak '\n')
-            float textOffsetX = 0;       // Offset X to next character to draw
+            float textOffsetY = 0;
+            float textOffsetX = 0;
+            float peakTextOffsetX = 0;
 
             int codepoint;
             int cpIndex;
+            float charWidth;
 
             int nextByteCount = 0;
 
             int nextCodepoint = GetCodepointNext(cText, &nextByteCount);
             int nextCodepointIndex = GetGlyphIndex(font, nextCodepoint);
+            float nextCharWidth = GetCodepointWidth(nextCodepointIndex);
 
-            bool setCursor = IsHovered && IsMouseButtonPressed(MouseButton.Left);
-            Vector2 mPos = GetMousePosition() - new Vector2(Dimensions.X, Dimensions.Y);
+            float prevCursorX = _cursorVisualX;
+            float prevCursorY = _cursorVisualY;
+
+            if (InputManager.CheckSelected(this))
+            {
+                _cursorVisualX = -1;
+                _cursorVisualY = -1;
+            }
+
+            bool setCursor = IsHovered && IsMouseButtonPressed(MouseButton.Left) || cursorPos is not null;
+            cursorPos ??= GetMousePosition() - new Vector2(Dimensions.X, Dimensions.Y) + _scroll;
+            Vector2 mPos = cursorPos.Value;
+
+            if (setCursor)
+            {
+                _cursorPosition = -1;
+            }
 
             for (int i = 0; i < size;)
             {
@@ -205,6 +326,7 @@ namespace GNSUsingCS.Elements
                 int byteCount = nextByteCount;
                 codepoint = nextCodepoint;
                 cpIndex = nextCodepointIndex;
+                charWidth = nextCharWidth;
 
                 if (i + nextByteCount != size)
                 {
@@ -217,12 +339,27 @@ namespace GNSUsingCS.Elements
                     nextCharWidth = 0;
                 }
 
-                if (codepoint == '\n') 
+                if (codepoint == '\n')
                 {
+                    InsertBuffer(lineBuffer, codepointBuffer, mPos, ref curIndex, ref textOffsetX, ref setCursor, textOffsetY);
+                    codepointBuffer = [];
+
+                    if (setCursor)
+                    {
+                        if (mPos.Y < textOffsetY + LineSpacing + FontSize)
+                        {
+                            _cursorPosition = curIndex;
+                            setCursor = false;
+
+                            _cursorVisualX = (int)textOffsetX;
+                            _cursorVisualY = (int)textOffsetY;
+                        }
+                    }
+
+                    InsertBuffer(lineBuffer, [new(' ', 0)], mPos, ref curIndex, ref textOffsetX, ref setCursor, textOffsetY);
                     //DrawCodepointAt(origin, codepointBuffer, curIndex, textOffsetX, textOffsetY, didDrawCursor);
                     _lines.Add(lineBuffer);
                     lineBuffer = [];
-                    codepointBuffer = [];
                     codepointBufferWidth = 0;
 
                     /*
@@ -237,23 +374,15 @@ namespace GNSUsingCS.Elements
                     curIndex++;
                     */
 
-                    textOffsetY += LineSpacing + FontSize;
                     curLineWidth = 0;
+                    textOffsetY += LineSpacing + FontSize;
+                    peakTextOffsetX = MathF.Max(peakTextOffsetX, textOffsetX);
+                    textOffsetX = 0;
                 }
                 else
                 {
-                    codepointBuffer.Add(codepoint);
-                    codepointBufferWidth += GetCodepointWidth(cpIndex);
-
-                    if (setCursor)
-                    {
-                        Console.WriteLine(mPos.Y + ">" + (textOffsetY + LineSpacing + FontSize) + " | " + mPos.X + "<" + (curLineWidth + nextCharWidth + codepointBufferWidth));
-                        if (mPos.Y < textOffsetY + LineSpacing + FontSize && mPos.X < curLineWidth + codepointBufferWidth - nextCharWidth / 2f)
-                        {
-                            _cursorPosition = curIndex;
-                            setCursor = false;
-                        }
-                    }
+                    codepointBuffer.Add(new(codepoint, charWidth));
+                    codepointBufferWidth += charWidth;
 
                     if (codepoint == ' ' || codepoint == '\t' || Wrapping == Wrapping.CharWrapping || Wrapping == Wrapping.NoWrapping || curLineWidth + nextCharWidth + codepointBufferWidth > Dimensions.W)
                     {
@@ -269,7 +398,7 @@ namespace GNSUsingCS.Elements
                             }
                             else
                             {
-                                lineBuffer.AddRange(codepointBuffer);
+                                InsertBuffer(lineBuffer, codepointBuffer, mPos, ref curIndex, ref textOffsetX, ref setCursor, textOffsetY);
                                 _lines.Add(lineBuffer);
                                 lineBuffer = [];
                                 codepointBuffer = [];
@@ -277,7 +406,21 @@ namespace GNSUsingCS.Elements
                                 curLineWidth = 0;
                             }
 
+                            if (setCursor)
+                            {
+                                if (mPos.Y < textOffsetY + LineSpacing + FontSize)
+                                {
+                                    _cursorPosition = curIndex;
+                                    setCursor = false;
+
+                                    _cursorVisualX = (int)textOffsetX;
+                                    _cursorVisualY = (int)textOffsetY;
+                                }
+                            }
+
                             textOffsetY += LineSpacing + FontSize;
+                            textOffsetX = 0;
+                            peakTextOffsetX = MathF.Max(peakTextOffsetX, textOffsetX);
 
 
                             /*
@@ -307,7 +450,7 @@ namespace GNSUsingCS.Elements
                         else
                         {
                             // DrawCodepointAt(origin, codepointBuffer, curIndex, textOffsetX, textOffsetY, didDrawCursor);
-                            lineBuffer.AddRange(codepointBuffer);
+                            InsertBuffer(lineBuffer, codepointBuffer, mPos, ref curIndex, ref textOffsetX, ref setCursor, textOffsetY);
                             codepointBuffer = [];
                             curLineWidth += codepointBufferWidth;
                             codepointBufferWidth = 0;
@@ -317,15 +460,51 @@ namespace GNSUsingCS.Elements
                 }
 
                 i += byteCount;
-                curIndex++;
             }
 
-            lineBuffer.AddRange(codepointBuffer);
+            InsertBuffer(lineBuffer, codepointBuffer, mPos, ref curIndex, ref textOffsetX, ref setCursor, textOffsetY);
             _lines.Add(lineBuffer);
+            curLineWidth += codepointBufferWidth;
+            codepointBufferWidth = 0;
 
             if (setCursor)
             {
                 _cursorPosition = Text.Length;
+            }
+
+            Console.WriteLine(_cursorVisualX + " - " + _cursorVisualY + " | " + _cursorPosition);
+
+            if (_cursorVisualX == -1 && InputManager.CheckSelected(this))
+            {
+                _cursorVisualX = (int)textOffsetX;
+                _cursorVisualY = (int)textOffsetY;
+            }
+
+            peakTextOffsetX = MathF.Max(peakTextOffsetX, textOffsetX);
+            _scrollRoom = new(peakTextOffsetX - Dimensions.W, textOffsetY + FontSize - Dimensions.H);
+            Console.WriteLine(_scrollRoom);
+
+            if (prevCursorX != _cursorVisualX || prevCursorY != _cursorVisualY)
+            {
+                Console.WriteLine("ScrollCorrectionOnCursorMoved");
+                if ((_cursorVisualY + FontSize - _scroll.Y) > Dimensions.H)
+                {
+                    _scroll.Y = (_cursorVisualY + FontSize) - Dimensions.H;
+                }
+                if ((_cursorVisualY - _scroll.Y) < 0)
+                {
+                    _scroll.Y = _cursorVisualY;
+                }
+
+                if ((_cursorVisualX + FontSize - _scroll.X) > Dimensions.W)
+                {
+                    _scroll.X = (_cursorVisualX + FontSize) - Dimensions.W;
+                }
+                if ((_cursorVisualX - _scroll.X) < 0)
+                {
+                    _scroll.X = _cursorVisualX;
+                }
+                Console.WriteLine(_scroll.Y + " | " + _scrollRoom.Y);
             }
 
             /*

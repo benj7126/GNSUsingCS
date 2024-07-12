@@ -14,12 +14,13 @@ namespace GNSUsingCS
                 fontName = Settings.defaultFontType;
             }
 
-            string filePath = "assets/Fonts/" + fontName + ".ttf";
+            string filePath = "Assets/Fonts/" + fontName + ".ttf";
             fontName = $"{fontName} | {filter} | {size}";
 
             if (!_fontMap.ContainsKey(fontName))
             {
                 Font font = LoadFontEx(filePath, size, null, 0); // no clue about these codepoints...
+                Console.WriteLine(font);
                 SetTextureFilter(font.Texture, filter);
 
                 _fontMap.Add(fontName, font);
