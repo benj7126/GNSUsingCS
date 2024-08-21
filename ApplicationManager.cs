@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using GNSUsingCS.Tabs.ChoiceTab;
+using GNSUsingCS.Tabs.WorkspaceTab;
 using Raylib_cs;
 
 namespace GNSUsingCS
@@ -16,9 +17,14 @@ namespace GNSUsingCS
         private int _curTab = 0;
         private List<Tab> _tabs = [];
 
-        public void AddWorkspace()
+        public void ChoiceTab()
         {
             _tabs.Add(new ChoiceTab());
+        }
+
+        public void AddWorkspace()
+        {
+            _tabs.Add(new WorkspaceTab());
         }
 
         private List<int> tabPos = []; 

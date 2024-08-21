@@ -1,4 +1,5 @@
 ﻿using GNSUsingCS.Elements;
+using KeraLua;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,54 @@ namespace GNSUsingCS.Tabs.ChoiceTab
         public ChoiceTab()
         {
             mcount = count++;
+
+            LuaInterfacer.EnterNote("");
+            LuaInterfacer.EnterTab(UUID);
+            TextBox TB = new TextBox();
+            LuaInterfacer.EnterElement(0, TB);
+            TB.Dimensions.Left.Set(0, 0.5f);
+            TB.Dimensions.Width.Set(0, 0.7f);
+            TB.Dimensions.Height.Set(0, 0.7f);
+
+            TB.Dimensions.HAlign = 0.5f;
+            TB.Dimensions.VAlign = 0.5f;
+
+            TB.Dimensions.Top.Set(0, 0.5f);
+
+            TB.Wrapping = Wrapping.WordWrapping;
+
+            Button B = new Button();
+            LuaInterfacer.EnterElement(1, B);
+            B.Label.Text = "Counter 0";
+            B.Code = """
+                if G.counter == nil then
+                    G.counter = 0
+                end
+
+
+                function OnPress()
+                    -- if i == 10 then
+                    --     this:LoadCode()
+                    -- end
+
+                    G.counter = G.counter + 1
+
+                    this.Code = this.Code .. "+1"
+                    this:LoadCode()
+                
+                    this.Label.Text = "Counter " .. i .. " | " .. G.counter
+                    this:Recalculate()
+
+                    print(this.Code)
+
+                end
+
+                i=0
+                """;
+
+            B.LoadCode();
+
+            /*
             TextBox b1 = new TextBox();
             b1.Dimensions.Left.Set(0, 1f/4f);
             b1.Dimensions.Width.Set(0, 0.3f);
@@ -53,6 +102,13 @@ namespace GNSUsingCS.Tabs.ChoiceTab
 
             ElementLayer layer = new([b1, b2, b3]);
             _layers = [layer];
+            */
+
+
+            ElementLayer layer = new([TB, B]);
+            _layers = [layer];
+
+            layer.Save();
         }
     }
 }

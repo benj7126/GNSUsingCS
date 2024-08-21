@@ -15,17 +15,19 @@ namespace GNSUsingCS.Elements
             DrawTextEx(FontManager.GetFont(FontType, FontSize), Text, new Vector2(Dimensions.X, Dimensions.Y), FontSize, Spacing, Color);
         }
 
-        public override void ExtraConstraints(ref Dictionary<Constraint, int> constraints)
+        internal override void ExtraConstraints(ref Dictionary<Constraint, int> constraints)
         {
             base.ExtraConstraints(ref constraints);
 
             Vector2 size = MeasureTextEx(FontManager.GetFont(FontType, FontSize), Text, FontSize, Spacing);
 
-            constraints[Constraint.MinW] = (int)Math.Ceiling(size.X) + (int)(Padding.X / 2);
-            constraints[Constraint.MinH] = (int)Math.Ceiling(size.Y) + (int)(Padding.Y / 2);
+            constraints[Constraint.MinW] = Math.Max(constraints[Constraint.MinW], (int)Math.Ceiling(size.X) + (int)(Padding.X / 2));
+            constraints[Constraint.MinH] = Math.Max(constraints[Constraint.MinH], (int)Math.Ceiling(size.Y) + (int)(Padding.Y / 2));
 
+            /*
             constraints[Constraint.MinX] = (int)(Padding.X / 2);
             constraints[Constraint.MinY] = (int)(Padding.Y / 2);
+            */
         }
     }
 }

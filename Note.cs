@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GNSUsingCS
 {
-    internal class Note
+    internal class Note : Element
     {
     }
 }

@@ -13,6 +13,8 @@ namespace GNSUsingCS
 
         public int[] sizes = new int[4];
 
+        public string UUID = Guid.NewGuid().ToString();
+
         public void DrawTab(ref int x, bool selected)
         {
             string fontType = Settings.TabSettings.fontType;
@@ -32,8 +34,16 @@ namespace GNSUsingCS
 
         public void Resize(int x, int y, int w, int h) { }
 
+        public void Save()
+        {
+            _layers.ForEach(l => l.Save());
+        }
+
         public void Draw(int x, int y, int w, int h)
         {
+            LuaInterfacer.EnterNote("");
+            LuaInterfacer.EnterTab(UUID);
+
             if (sizes[0] != x || sizes[1] != y || sizes[2] != w || sizes[3] != h)
             {
                 _layers.ForEach(l => l.Resize(x, y, w, h));
@@ -46,15 +56,24 @@ namespace GNSUsingCS
 
         public void Update()
         {
+            LuaInterfacer.EnterNote("");
+            LuaInterfacer.EnterTab(UUID);
+
             _layers.ForEach(l => l.Update());
         }
         public void PreUpdate()
         {
+            LuaInterfacer.EnterNote("");
+            LuaInterfacer.EnterTab(UUID);
+
             _layers.ForEach(l => l.PreUpdate());
         }
 
-        internal void MouseCaptured(int x, int y)
+        public void MouseCaptured(int x, int y)
         {
+            LuaInterfacer.EnterNote("");
+            LuaInterfacer.EnterTab(UUID);
+
             for (int i = _layers.Count - 1; i >= 0; i--)
             {
                 if (_layers[i].MouseCaptured(x, y))

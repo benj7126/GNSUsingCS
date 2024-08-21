@@ -12,6 +12,7 @@ namespace GNSUsingCS
         public virtual void Resize(int x, int y, int w, int h) { }
         public virtual void Update() { }
         public virtual void PreUpdate() { }
+        public virtual void Save() { }
 
         /// <summary>
         /// 

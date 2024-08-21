@@ -3,16 +3,23 @@ using Raylib_cs;
 using GNSUsingCS;
 using System.Numerics;
 
+/*
+string a = SaveAndLoadManager.SetupArray(["a", "f"]) + " asd";
+var b = SaveAndLoadManager.ParseArray(a);
+*/
+
 InitWindow(1200, 800, "raylib [core] example - basic window");
 SetTargetFPS(60);
 // ToggleFullscreen();
 // ToggleBorderlessWindowed();
 
+LuaInterfacer.SetupLuaInterfacer();
+
 ApplicationManager AM = new();
 
 AM.AddWorkspace();
-AM.AddWorkspace();
-AM.AddWorkspace();
+AM.ChoiceTab();
+AM.ChoiceTab();
 
 while (!WindowShouldClose())
 {
@@ -24,6 +31,8 @@ while (!WindowShouldClose())
 
     Vector2 mbPos = GetMousePosition();
     AM.MouseCaptured((int)mbPos.X, (int)mbPos.Y);
+
+    MouseManager.Update();// TODO: should probably replace ^^, but it can stay for now
 
     InputManager.Update();
 

@@ -8,7 +8,7 @@ namespace GNSUsingCS
 {
     internal static class ScissorManager
     {
-        public static Stack<Tuple<int, int, int, int>> ScissorLayers = [];
+        public static Stack<(int, int, int, int)> ScissorLayers = [];
 
         /* would ideally not be needed
         public static void ClearScissor()
@@ -27,7 +27,7 @@ namespace GNSUsingCS
                 return;
             }
 
-            Tuple<int, int, int, int> outerLayer = ScissorLayers.Last();
+            (int, int, int, int) outerLayer = ScissorLayers.Last();
 
             if (x < outerLayer.Item1)
             {
@@ -63,7 +63,7 @@ namespace GNSUsingCS
                 return;
             }
 
-            Tuple<int, int, int, int> outerLayer = ScissorLayers.Last();
+            (int, int, int, int) outerLayer = ScissorLayers.Last();
             BeginScissorMode(outerLayer.Item1, outerLayer.Item2, outerLayer.Item3, outerLayer.Item4);
         }
     }

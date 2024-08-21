@@ -1,8 +1,10 @@
 ﻿using Raylib_cs;
+using System.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -118,12 +120,12 @@ namespace GNSUsingCS
         /// Supposed to automatically handle repeating using the InputManager.
         /// The InputManager also restricts input to only go to a single element at a time.
         /// </summary>
-        public abstract void IncommingCharacter(char character);
+        internal abstract void IncommingCharacter(char character);
 
         /// <summary>
         /// Supposed to automatically handle repeating using the InputManager.
         /// The InputManager also restricts input to only go to a single element at a time.
         /// </summary>
-        public abstract void IncommingSpecialKey(KeyboardKey key, List<KeyAddition> additions);
+        internal abstract void IncommingSpecialKey(KeyboardKey key, List<KeyAddition> additions);
     }
 }

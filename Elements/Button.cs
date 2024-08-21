@@ -15,7 +15,7 @@ namespace GNSUsingCS.Elements
 
         public override List<Element> Children => [Label, Box];
 
-        public Button()
+        internal Button()
         {
             Label = new Label();
             Label.Dimensions.Width.Set(0, 1);
@@ -31,11 +31,13 @@ namespace GNSUsingCS.Elements
             Box.Draw();
             Label.Draw();
         }
-        public override void Update()
+        internal override void Update()
         {
-            if (IsHovered && IsMouseButtonPressed(MouseButton.Left))
+            Console.WriteLine("Exists");
+
+            if (IsHovered && !IsMouseButtonPressed(MouseButton.Left))
             {
-                Console.WriteLine("Pressed");
+                LuaInterfacer.TryCallMethod("OnPress");
             }
         }
     }
