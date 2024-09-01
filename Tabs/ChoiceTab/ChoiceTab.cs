@@ -36,6 +36,9 @@ namespace GNSUsingCS.Tabs.ChoiceTab
             Button B = new Button();
             LuaInterfacer.EnterElement(1, B);
             B.Label.Text = "Counter 0";
+            B.Dimensions.Width.Set(400, 0f);
+            B.Dimensions.Height.Set(20, 0f);
+            B.Label.FontSize = 20;
             B.Code = """
                 if G.counter == nil then
                     G.counter = 0

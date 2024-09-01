@@ -10,11 +10,15 @@ namespace GNSUsingCS.Elements
 {
     internal class Label : TextContainer
     {
+        public bool ScaleHeightWithFont = false; // should somehow set the height to FontSize pixels, but only during note/element editing.
+                                                 // *not every frame...
+
         protected override void DrawElement()
         {
             DrawTextEx(FontManager.GetFont(FontType, FontSize), Text, new Vector2(Dimensions.X, Dimensions.Y), FontSize, Spacing, Color);
         }
 
+        /*
         internal override void ExtraConstraints(ref Dictionary<Constraint, int> constraints)
         {
             base.ExtraConstraints(ref constraints);
@@ -24,10 +28,9 @@ namespace GNSUsingCS.Elements
             constraints[Constraint.MinW] = Math.Max(constraints[Constraint.MinW], (int)Math.Ceiling(size.X) + (int)(Padding.X / 2));
             constraints[Constraint.MinH] = Math.Max(constraints[Constraint.MinH], (int)Math.Ceiling(size.Y) + (int)(Padding.Y / 2));
 
-            /*
-            constraints[Constraint.MinX] = (int)(Padding.X / 2);
-            constraints[Constraint.MinY] = (int)(Padding.Y / 2);
-            */
+            // constraints[Constraint.MinX] = (int)(Padding.X / 2);
+            // constraints[Constraint.MinY] = (int)(Padding.Y / 2);
         }
+        */
     }
 }

@@ -2,11 +2,14 @@
 using Raylib_cs;
 using GNSUsingCS;
 using System.Numerics;
+using System.Diagnostics;
 
 /*
 string a = SaveAndLoadManager.SetupArray(["a", "f"]) + " asd";
 var b = SaveAndLoadManager.ParseArray(a);
 */
+
+SaveAndLoadManager.RelativePath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 
 InitWindow(1200, 800, "raylib [core] example - basic window");
 SetTargetFPS(60);

@@ -1,4 +1,5 @@
-﻿using Raylib_cs;
+﻿using GNSUsingCS.Tabs.WorkspaceTab;
+using Raylib_cs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,11 +34,15 @@ namespace GNSUsingCS.Elements
         }
         internal override void Update()
         {
-            Console.WriteLine("Exists");
+            // Console.WriteLine("Exists");
 
-            if (IsHovered && !IsMouseButtonPressed(MouseButton.Left))
+            if (IsHovered && IsMouseButtonPressed(MouseButton.Left))
             {
                 LuaInterfacer.TryCallMethod("OnPress");
+
+                WorkspaceTab t = new();
+                SaveAndLoadManager.SaveTab(t);
+                SaveAndLoadManager.LoadTab(t.UUID);
             }
         }
     }

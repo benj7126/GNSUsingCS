@@ -13,6 +13,7 @@ namespace GNSUsingCS.Tabs.WorkspaceTab
         public override string Name => "WorkspaceTab";
         public WorkspaceTab()
         {
+
             DraggableNodeLayer layer = new();
             DropdownLayer ddl = new(layer);
             _layers = [ddl, layer];

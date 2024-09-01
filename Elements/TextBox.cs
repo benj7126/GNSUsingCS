@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,10 +22,12 @@ namespace GNSUsingCS.Elements
     {
         public Box Box;
 
-        private static Dictionary<string, List<char>> RepeatSets = new()
+        private static Dictionary<string, List<Func<char, bool>>> RepeatSets = new()
         {
-            { "Note taking", [] },
+            { "Note taking", [(char c) => { return char.IsLetterOrDigit(c); }, (char c) => { return c == '\t'; } ] },
             { "Programming", [] }
+
+            // custom sets/set loading?
         };
 
         // only one textbox has a cursor at a time so its less memory use if i do this, right..? (not that i think it matters much...)
@@ -34,20 +37,27 @@ namespace GNSUsingCS.Elements
         private static int _savedCursorVisualX = -1;
         private static int _highlightPosition = -1;
 
+        private static int _savedLeftHighlight = -1;
+        private static int _savedRightHighlight = -1;
+
+        private static bool justSelected = true;
+
         private enum HeldMode
         {
             Nothing,
             ScrollY,
             ScrollX,
-            SelectText
+            SelectTextChar,
+            SelectTextWord,
+            SelectTextLine,
         }
+
         private HeldMode heldMode = HeldMode.Nothing;
 
-        // why do i not make ^^ an enum..?
-        // who knows...
-
-        private int _cursorCharacter => Text[_cursorPosition];
+        private char _cursorCharacter => _cursorPosition == Text.Length || _cursorPosition == -1 ? ' ' : Text[_cursorPosition];
         private bool _doDrawCursor => InputManager.CheckSelected(this);
+
+        public string setType = "Note taking";
 
         public Wrapping Wrapping = 0;
 
@@ -105,10 +115,11 @@ namespace GNSUsingCS.Elements
 
         internal override void Update()
         {
-            base.Update();
+            base.Update(); //not really neccecary?
+
             if (!IsMouseButtonDown(MouseButton.Left))
             {
-                if (heldMode == HeldMode.SelectText)
+                if (heldMode == HeldMode.SelectTextChar)
                 {
                     if (_cursorPosition == _highlightPosition)
                     {
@@ -130,10 +141,24 @@ namespace GNSUsingCS.Elements
                     float totalTextPercent = (_scrollRoom.X + Dimensions.W) / Dimensions.W;
                     _scroll.X += MouseManager.MouseVelocity.X * totalTextPercent;
                 }
-                if (heldMode == HeldMode.SelectText)
+                if (heldMode == HeldMode.SelectTextChar || heldMode == HeldMode.SelectTextWord || heldMode == HeldMode.SelectTextLine)
                 {
                     // set cursor each frame
                     PrepareTexbox(MouseManager.MousePosition - new Vector2(Dimensions.X, Dimensions.Y) + _scroll);
+
+                    if (heldMode != HeldMode.SelectTextChar)
+                    {
+                        if (heldMode == HeldMode.SelectTextWord)
+                            SelectWord();
+                        else if (heldMode == HeldMode.SelectTextLine)
+                            SelectLine();
+
+                        int p1 = Math.Max(Math.Max(Math.Max(_savedLeftHighlight, _savedRightHighlight), _cursorPosition), _highlightPosition);
+                        int p2 = Math.Min(Math.Min(Math.Min(_savedLeftHighlight, _savedRightHighlight), _cursorPosition), _highlightPosition);
+
+                        _cursorPosition = p1;
+                        _highlightPosition = p2;
+                    }
                 }
             }
 
@@ -175,15 +200,44 @@ namespace GNSUsingCS.Elements
 
             if (IsHovered && IsMouseButtonPressed(MouseButton.Left) && heldMode == HeldMode.Nothing)
             {
+                justSelected = false;
                 _cursorPosition = 0;
                 _cursorVisualX = -1;
                 _cursorVisualY = -1;
                 _savedCursorVisualX = -1;
-                _highlightPosition = -1;
-                heldMode = HeldMode.SelectText;
+
                 InputManager.SetInput(this);
                 PrepareTexbox();
-                _highlightPosition = _cursorPosition;
+
+                int click = MouseManager.RepeatedStillClicks[0];
+
+                if (click == 1)
+                {
+                    heldMode = HeldMode.SelectTextChar;
+                    _highlightPosition = _cursorPosition;
+                }
+
+                if (click > 1)
+                {
+                    click = (click) % 2;
+
+                    switch (click)
+                    {
+                        case 0:
+                            SelectWord();
+                            heldMode = HeldMode.SelectTextWord;
+                            break;
+                        case 1:
+                            SelectLine();
+                            heldMode = HeldMode.SelectTextLine;
+                            break;
+                    }
+
+                    _savedLeftHighlight = _highlightPosition;
+                    _savedRightHighlight = _cursorPosition;
+
+                    justSelected = true;
+                }
             };
 
             Vector2 mouseWheelMove = new(0f, GetMouseWheelMoveV().Y);
@@ -195,15 +249,116 @@ namespace GNSUsingCS.Elements
             }
 
             _mouseScrollVel *= Settings.MouseScrollVelocityDropoff;
-            _mouseScrollVel += mouseWheelMove * Settings.mouseScrollSensitivity;
+            _mouseScrollVel += mouseWheelMove * Settings.MouseScrollSensitivity;
 
             _scroll.X = MathF.Max(MathF.Min(_scroll.X - _mouseScrollVel.X, _scrollRoom.X), 0f);
             _scroll.Y = MathF.Max(MathF.Min(_scroll.Y - _mouseScrollVel.Y, _scrollRoom.Y), 0f);
         }
 
+        private void SelectWord()
+        {
+            int sPos = _cursorPosition;
+            if (!RepeatActionTillChange(Left))
+                Right();
+            _highlightPosition = _cursorPosition;
+            _cursorPosition = sPos;
+            RepeatActionTillChange(Right);
+        }
+
+        private void SelectLine()
+        {
+            int sPos = _cursorPosition;
+
+            bool onlyLeft = false;
+            if (_cursorCharacter == '\n')
+            {
+                Left();
+                onlyLeft = true;
+            }
+
+            int pos = _cursorPosition == -1 ? 0 : -1;
+
+            bool goingLeft = true;
+
+            while (true)
+            {
+                if (_cursorCharacter == '\n' || pos == _cursorPosition)
+                {
+                    if (goingLeft == false)
+                        return;
+
+                    if (_cursorCharacter == '\n')
+                        Right();
+
+                    if (onlyLeft)
+                    {
+                        _highlightPosition = _cursorPosition;
+                        _cursorPosition = sPos + 1;
+                        return;
+                    }
+
+                    goingLeft = false;
+                    _highlightPosition = _cursorPosition;
+                    _cursorPosition = sPos;
+                    pos = _cursorPosition == -1 ? 0 : -1;
+                }
+
+                pos = _cursorPosition;
+
+                if (goingLeft)
+                    Left();
+                else
+                    Right();
+            }
+
+        }
+
+        // return true if movement stopped "by wall"
+        private bool RepeatActionTillChange(Action action)
+        {
+            char c = _cursorCharacter;
+
+            bool isSpace = c == ' ';
+            bool isNLine = c == '\t';
+            Func<char, bool> selectedSet = null;
+            RepeatSets[setType].ForEach(inSet => {
+                if (inSet(c))
+                    selectedSet = inSet;
+            });
+            bool isInSet = selectedSet is null ? false : true;
+
+            int position = _cursorPosition == -1 ? 0 : -1; // for tracking that it actually changed - make sure its different, pre first action
+
+            while (position != _cursorPosition)
+            {
+                position = _cursorPosition;
+
+                action();
+
+                if ((isSpace && _cursorCharacter != ' ') || (isNLine && _cursorCharacter != '\n') || (isInSet && !selectedSet(_cursorCharacter)))
+                    return false;
+                else if (!isInSet && !isSpace && !isNLine)
+                {
+                    if (_cursorCharacter == ' ' || _cursorCharacter == '\n')
+                        return false;
+
+                    bool found = false; // space characters operate outside the sets
+                    RepeatSets[setType].ForEach(inSet => {
+                        if (inSet(_cursorCharacter))
+                            found = true;
+                    });
+
+                    if (found)
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
         void IInput.IncommingCharacter(char character)
         {
-            if (heldMode == HeldMode.SelectText)
+            if (heldMode == HeldMode.SelectTextChar || heldMode == HeldMode.SelectTextWord || heldMode == HeldMode.SelectTextLine)
             {
                 return;
             }
@@ -221,7 +376,7 @@ namespace GNSUsingCS.Elements
 
         void IInput.IncommingSpecialKey(KeyboardKey key, List<KeyAddition> additions)
         {
-            if (heldMode == HeldMode.SelectText)
+            if (heldMode == HeldMode.SelectTextChar || heldMode == HeldMode.SelectTextWord || heldMode == HeldMode.SelectTextLine)
             {
                 return;
             }
@@ -230,6 +385,18 @@ namespace GNSUsingCS.Elements
             {
                 if (additions.Contains(KeyAddition.Shift))
                 {
+                    if (justSelected)
+                    {
+                        if (key == KeyboardKey.Left || key == KeyboardKey.Up)
+                        {
+                            int saveP = _highlightPosition;
+                            _highlightPosition = _cursorPosition;
+                            _cursorPosition = saveP;
+                        }
+
+                        justSelected = false;
+                    }
+
                     if (_highlightPosition == -1)
                     {
                         _highlightPosition = _cursorPosition;
@@ -259,11 +426,11 @@ namespace GNSUsingCS.Elements
 
                 if (key == KeyboardKey.Left)
                 {
-                    CtrlRepeatedAction(Left, additions);
+                    CtrlRepeatedAction(Left, additions, true);
                 }
                 if (key == KeyboardKey.Right)
                 {
-                    CtrlRepeatedAction(Right, additions);
+                    CtrlRepeatedAction(Right, additions, false);
                 }
             }
 
@@ -294,7 +461,7 @@ namespace GNSUsingCS.Elements
             {
                 if (_highlightPosition == -1)
                 {
-                    CtrlRepeatedAction(Backspace, additions);
+                    CtrlRepeatedAction(Backspace, additions, true);
                 }
                 else
                 {
@@ -313,7 +480,7 @@ namespace GNSUsingCS.Elements
             {
                 if (_highlightPosition == -1)
                 {
-                    CtrlRepeatedAction(Delete, additions);
+                    CtrlRepeatedAction(Delete, additions, false);
                 }
                 else
                 {
@@ -346,35 +513,91 @@ namespace GNSUsingCS.Elements
             }
         }
 
-        private void CtrlRepeatedAction(Action action, List<KeyAddition> additions)
+        private bool IsSpaceChar(char c)
         {
+            return c == ' ';
+        }
+
+        private void CtrlRepeatedAction(Action action, List<KeyAddition> additions, bool left)
+        {
+            int offset = left ? -1 : 0;
+
             if (!additions.Contains(KeyAddition.Ctrl))
             {
                 action();
                 return;
             }
 
-            char startChar = _cursorPosition == 0 ? ' ' : Text[_cursorPosition - 1];
-            bool charSwapped = false;
-            int position = _cursorPosition;
-            action();
+            Func<char, bool> selectedSet = null;
 
-            char curChar = _cursorPosition == 0 ? ' ' : Text[_cursorPosition - 1];
+            char startChar = _cursorPosition == 0 ? ' ' : Text[_cursorPosition + offset];
+            bool allowingSpace = IsSpaceChar(startChar) && left; // only when you start at space and are going left
+                                                         // or activate when you dont start at space but encounter a space and are going right.
 
-            while ((curChar != ' ' || !charSwapped) && position != _cursorPosition)
+            int position = _cursorPosition == -1 ? 0 : -1; // for tracking that it actually changed - make sure its different, pre first action
+
+            RepeatSets[setType].ForEach(inSet => {
+                if (inSet(startChar))
+                    selectedSet = inSet;
+            });
+            bool isInSet = selectedSet is null ? false : true;
+
+            while (position != _cursorPosition)
             {
                 position = _cursorPosition;
 
                 action();
 
-                char nChar = _cursorPosition == 0 ? ' ' : Text[_cursorPosition - 1];
+                char nChar = _cursorPosition == 0 ? ' ' : Text[_cursorPosition + offset];
 
-                if (curChar != nChar)
+                if (nChar == '\n')
+                    return;
+
+                if (!left && !allowingSpace && IsSpaceChar(nChar))
                 {
-                    charSwapped = true;
+                    selectedSet = a => false;
+                    isInSet = true;
+
+                    allowingSpace = true;
                 }
 
-                curChar = nChar;
+                if (allowingSpace && IsSpaceChar(nChar))
+                    continue;
+
+                if (allowingSpace && !IsSpaceChar(nChar))
+                {
+                    if (left)
+                    {
+                        selectedSet = null;
+                        RepeatSets[setType].ForEach(inSet => {
+                            if (inSet(nChar))
+                                selectedSet = inSet;
+                        });
+                        isInSet = selectedSet is null ? false : true;
+                    }
+
+                    allowingSpace = false;
+                }
+
+                if (!isInSet)
+                {
+                    bool found = IsSpaceChar(nChar); // space characters operate outside the sets
+                    RepeatSets[setType].ForEach(inSet => {
+                        if (inSet(nChar))
+                            found = true;
+                    });
+
+                    if (found)
+                        return;
+                }
+                else
+                {
+                    if (!selectedSet(nChar))
+                    {
+                        // not in the set anymore
+                        return;
+                    }
+                }
             }
         }
 
@@ -684,15 +907,18 @@ namespace GNSUsingCS.Elements
             peakTextOffsetX = MathF.Max(peakTextOffsetX, textOffsetX);
             _scrollRoom = new(peakTextOffsetX - Dimensions.W, textOffsetY + FontSize - Dimensions.H);
 
+            int SODown = heldMode == HeldMode.Nothing ? Settings.ScrollOffDown : 0;
+            int SOUp = heldMode == HeldMode.Nothing ? Settings.ScrollOffUp : 0;
+
             if (prevCursorX != _cursorVisualX || prevCursorY != _cursorVisualY)
             {
-                if ((_cursorVisualY + FontSize - _scroll.Y + FontSize * Settings.ScrollOffDown) > Dimensions.H)
+                if ((_cursorVisualY + FontSize - _scroll.Y + FontSize * SODown) > Dimensions.H)
                 {
-                    _scroll.Y = (_cursorVisualY + FontSize) - Dimensions.H + FontSize * Settings.ScrollOffDown;
+                    _scroll.Y = (_cursorVisualY + FontSize) - Dimensions.H + FontSize * SODown;
                 }
-                if ((_cursorVisualY - _scroll.Y - FontSize * Settings.ScrollOffUp) < 0)
+                if ((_cursorVisualY - _scroll.Y - FontSize * SOUp) < 0)
                 {
-                    _scroll.Y = _cursorVisualY - FontSize * Settings.ScrollOffUp;
+                    _scroll.Y = _cursorVisualY - FontSize * SOUp;
                 }
 
                 if ((_cursorVisualX + FontSize - _scroll.X) > Dimensions.W)

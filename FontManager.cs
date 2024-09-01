@@ -11,7 +11,7 @@ namespace GNSUsingCS
         {
             if (fontName == "")
             {
-                fontName = Settings.defaultFontType;
+                fontName = Settings.DefaultFontType;
             }
 
             string filePath = "Assets/Fonts/" + fontName + ".ttf";

@@ -34,11 +34,6 @@ namespace GNSUsingCS
 
         public void Resize(int x, int y, int w, int h) { }
 
-        public void Save()
-        {
-            _layers.ForEach(l => l.Save());
-        }
-
         public void Draw(int x, int y, int w, int h)
         {
             LuaInterfacer.EnterNote("");
@@ -82,5 +77,8 @@ namespace GNSUsingCS
                 }
             }
         }
+
+        public virtual string SaveData() { return ""; }
+        public virtual void LoadData(string data) { }
     }
 }
