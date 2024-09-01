@@ -27,6 +27,11 @@ namespace GNSUsingCS
             _tabs.Add(new WorkspaceTab());
         }
 
+        public void AddTab(Tab t)
+        {
+            _tabs.Add(t);
+        }
+
         private List<int> tabPos = []; 
         public void Draw()
         {

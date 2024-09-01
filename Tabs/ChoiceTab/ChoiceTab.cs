@@ -3,6 +3,7 @@ using KeraLua;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,10 +15,59 @@ namespace GNSUsingCS.Tabs.ChoiceTab
         int mcount = 0;
         public override string Name => "ChoiceTab #" + mcount;
 
+        ElementLayer elementLayer;
+
         public ChoiceTab()
         {
             mcount = count++;
 
+            /*
+            TextBox b1 = new TextBox();
+            b1.Dimensions.Left.Set(0, 1f/4f);
+            b1.Dimensions.Width.Set(0, 0.3f);
+            b1.Dimensions.Height.Set(0, 0.3f);
+
+            b1.Dimensions.HAlign = 0.5f;
+
+            b1.UseConstraints = false;
+
+            b1.Dimensions.Top.Set(0, (float)new Random().NextDouble() * 0.4f + 0.3f);
+
+            b1.Wrapping = 0;
+
+            TextBox b2 = new TextBox();
+            b2.Dimensions.Left.Set(0, 2f / 4f);
+            b2.Dimensions.Width.Set(0, 0.3f);
+            b2.Dimensions.Height.Set(0, 0.3f);
+
+            b2.Dimensions.HAlign = 0.5f;
+
+            b2.Dimensions.Top.Set(0, (float)new Random().NextDouble() * 0.4f + 0.3f);
+
+            b2.Wrapping = (Wrapping)1;
+
+            TextBox b3 = new TextBox();
+            b3.Dimensions.Left.Set(0, 3f / 4f);
+            b3.Dimensions.Width.Set(0, 0.3f);
+            b3.Dimensions.Height.Set(0, 0.3f);
+
+            b3.Dimensions.HAlign = 0.5f;
+
+            b3.Dimensions.Top.Set(0, (float)new Random().NextDouble() * 0.4f + 0.3f);
+
+            b3.Wrapping = (Wrapping)2;
+
+            ElementLayer layer = new([b1, b2, b3]);
+            _layers = [layer];
+            */
+
+
+            elementLayer = new([]);
+            _layers = [elementLayer];
+        }
+
+        public void SetTempTestThings()
+        {
             LuaInterfacer.EnterNote("");
             LuaInterfacer.EnterTab(UUID);
             TextBox TB = new TextBox();
@@ -67,51 +117,27 @@ namespace GNSUsingCS.Tabs.ChoiceTab
 
             B.LoadCode();
 
-            /*
-            TextBox b1 = new TextBox();
-            b1.Dimensions.Left.Set(0, 1f/4f);
-            b1.Dimensions.Width.Set(0, 0.3f);
-            b1.Dimensions.Height.Set(0, 0.3f);
+            elementLayer.Elements.Add(TB);
+            elementLayer.Elements.Add(B);
+        }
 
-            b1.Dimensions.HAlign = 0.5f;
+        public override void SaveData(ref SaveObject so)
+        {
+            so.Write(elementLayer.Elements.Count.ToString());
+            foreach (Element e in elementLayer.Elements)
+            {
+                e.SaveFromObject(ref so);
+            }
+        }
 
-            b1.UseConstraints = false;
+        public override void LoadData(ref LoadObject lo)
+        {
+            int elementCount = int.Parse(lo.Read());
 
-            b1.Dimensions.Top.Set(0, (float)new Random().NextDouble() * 0.4f + 0.3f);
-
-            b1.Wrapping = 0;
-
-            TextBox b2 = new TextBox();
-            b2.Dimensions.Left.Set(0, 2f / 4f);
-            b2.Dimensions.Width.Set(0, 0.3f);
-            b2.Dimensions.Height.Set(0, 0.3f);
-
-            b2.Dimensions.HAlign = 0.5f;
-
-            b2.Dimensions.Top.Set(0, (float)new Random().NextDouble() * 0.4f + 0.3f);
-
-            b2.Wrapping = (Wrapping)1;
-
-            TextBox b3 = new TextBox();
-            b3.Dimensions.Left.Set(0, 3f / 4f);
-            b3.Dimensions.Width.Set(0, 0.3f);
-            b3.Dimensions.Height.Set(0, 0.3f);
-
-            b3.Dimensions.HAlign = 0.5f;
-
-            b3.Dimensions.Top.Set(0, (float)new Random().NextDouble() * 0.4f + 0.3f);
-
-            b3.Wrapping = (Wrapping)2;
-
-            ElementLayer layer = new([b1, b2, b3]);
-            _layers = [layer];
-            */
-
-
-            ElementLayer layer = new([TB, B]);
-            _layers = [layer];
-
-            layer.Save();
+            for (int i = 0; i < elementCount; i++)
+            {
+                elementLayer.Elements.Add(Element.LoadToObject(ref lo));
+            }
         }
     }
 }

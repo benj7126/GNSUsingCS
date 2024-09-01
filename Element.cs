@@ -12,27 +12,17 @@
         }
 
         public int GetValue(int containerSize) => Pixels + (int)(Percent * containerSize);
-        public int GetPValueOrNone() => Percent == 0 ? Pixels : -1;
-    }
-    internal class ExtendedStyleDimension
-    {
-        public int Pixels;
-        public float Percent;
-
-        public int MinPixels = 0;
-        public int MaxPixels = 0;
-
-        public bool MinUsed = false;
-        public bool MaxUsed = false;
-
-        public void Set(int pixels, float precent)
+        internal void SaveValues(ref SaveObject so)
         {
-            Pixels = pixels;
-            Percent = precent;
+            so.Write(Pixels);
+            so.Write(Percent);
         }
 
-        public int GetValue(int containerSize) => Pixels + (int)(Percent * containerSize);
-        public int GetPValueOrNone() => Percent == 0 ? Pixels : -1;
+        internal void LoadValues(ref LoadObject lo)
+        {
+            Pixels = lo.ReadInt();
+            Percent = lo.ReadFloat();
+        }
     }
 
     internal class ElementStyle
@@ -40,8 +30,8 @@
         public StyleDimension Left = new();
         public StyleDimension Top = new();
 
-        public ExtendedStyleDimension Width = new();
-        public ExtendedStyleDimension Height = new();
+        public StyleDimension Width = new();
+        public StyleDimension Height = new();
 
         public float HAlign;
         public float VAlign;
@@ -88,62 +78,75 @@
 
             return false;
         }
+
+        internal void SaveValues(ref SaveObject so)
+        {
+            Left.SaveValues(ref so);
+            Top.SaveValues(ref so);
+
+            Width.SaveValues(ref so);
+            Height.SaveValues(ref so);
+
+            so.Write(HAlign);
+            so.Write(VAlign);
+        }
+
+        internal void LoadValues(ref LoadObject lo)
+        {
+            Left.LoadValues(ref lo);
+            Top.LoadValues(ref lo);
+
+            Width.LoadValues(ref lo);
+            Height.LoadValues(ref lo);
+
+            HAlign = lo.ReadFloat();
+            VAlign = lo.ReadFloat();
+        }
     }
 
     internal abstract class Element
     {
-
-        internal static Element GetElementFromString(string element)
-        {
-            string type = "";
-            string code = "";
-
-            bool typeReading = true;
-
-            foreach (char c in element)
-            {
-                if (c == '\n' && typeReading)
-                {
-                    typeReading = false;
-                    continue;
-                }
-
-                if (typeReading)
-                {
-                    type += c;
-                }
-                else
-                {
-                    code += c;
-                }
-            }
-
-            Type t = typeof(Element).Assembly.GetType(type);
-            if (t is null)
-            {
-                throw new Exception("Type " + t + " not found while loading element:\n" + element);
-            }
-
-            Element e = (Element)Activator.CreateInstance(t);
-            e.Code = code;
-
-            return e;
-        }
-
         public void LoadCode()
         {
             LuaInterfacer.SetElementCode(Code);
         }
 
-        internal string GetStringFromElement()
+        internal void SaveFromObject(ref SaveObject so)
         {
-            return GetType().FullName + "\n" + Code;
+            so.Write(GetType().FullName);
+            so.Write(Code);
+            Dimensions.SaveValues(ref so);
+            SaveValues(ref so);
         }
+
+        internal static Element LoadToObject(ref LoadObject lo)
+        {
+            string type = lo.Read();
+
+            Type t = typeof(Element).Assembly.GetType(type);
+            if (t is null)
+            {
+                throw new Exception("Type " + t + " not found");
+            }
+
+            Element e = (Element)Activator.CreateInstance(t);
+
+            e.Code = lo.Read();
+            e.Dimensions.LoadValues(ref lo);
+            e.LoadValues(ref lo);
+
+            // e.LoadCode(); -- have to make sure the lua system links right...
+
+            return e;
+        }
+
+        internal virtual void SaveValues(ref SaveObject so) { }
+        internal virtual void LoadValues(ref LoadObject lo) { }
 
         internal ElementStyle Dimensions = new ElementStyle();
 
         public string Code = "";
-        public bool SaveLuaState = false;
+        public bool SaveLuaState = false; // if non-local variables should be saved.
 
         public virtual List<Element> Children => [];
 
@@ -174,11 +177,6 @@
         int[] parentSize = [0, 0, 0, 0];
         internal void Recalculate(int x, int y, int w, int h)
         {
-            Dimensions.X = -1;
-            Dimensions.Y = -1;
-            Dimensions.W = -1;
-            Dimensions.H = -1;
-
             Dimensions.Recalculate(x, y, w, h);
 
             RecalculateChildren();
@@ -224,24 +222,7 @@
             return false;
         }
 
-        internal string Save()
-        {
-            return GetType().Name + ":" + SaveAndLoadManager.SetupArray([SaveValues(), SaveChildValues()]);
-        }
-
-        internal string Load(string text)
-        {
-            (List<string> load, string rest) = SaveAndLoadManager.ParseArray(text);
-
-            LoadValues(load[0]);
-            LoadChildValues(load[1]);
-
-            return rest;
-        }
-
-        internal virtual string SaveValues() { return ""; }
-        internal virtual void LoadValues(string val) { }
-
+        /*
         internal string SaveChildValues()
         {
             List<string> save = [];
@@ -269,6 +250,7 @@
 
             /// return rest;
         }
+        */
 
         internal static Element LoadElement()
         {

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace GNSUsingCS
 {
@@ -13,7 +14,8 @@ namespace GNSUsingCS
 
         public int[] sizes = new int[4];
 
-        public string UUID = Guid.NewGuid().ToString();
+        public string UUID = Guid.NewGuid().ToString(); // should probably have a thing that check for the loaded UUID's as well
+                                                        // and then just return the instance if it already exists...
 
         public void DrawTab(ref int x, bool selected)
         {
@@ -55,6 +57,11 @@ namespace GNSUsingCS
             LuaInterfacer.EnterTab(UUID);
 
             _layers.ForEach(l => l.Update());
+
+            if ((IsKeyDown(KeyboardKey.LeftControl) || IsKeyDown(KeyboardKey.RightControl)) && IsKeyPressed(KeyboardKey.S))
+            {
+                SaveAndLoadManager.SaveTab(this);
+            }
         }
         public void PreUpdate()
         {
@@ -78,7 +85,7 @@ namespace GNSUsingCS
             }
         }
 
-        public virtual string SaveData() { return ""; }
-        public virtual void LoadData(string data) { }
+        public virtual void SaveData(ref SaveObject so) { }
+        public virtual void LoadData(ref LoadObject lo) { }
     }
 }

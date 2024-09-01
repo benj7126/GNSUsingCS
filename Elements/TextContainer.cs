@@ -28,14 +28,14 @@ namespace GNSUsingCS.Elements
             Ut bibendum fringilla odio, vel dignissim orci dignissim convallis. Integer nec vestibulum erat, at mattis purus. Vestibulum ut accumsan eros, quis auctor felis. Nunc porta feugiat nisl in finibus. Sed a lorem id diam imperdiet pretium. Ut pharetra rhoncus sodales. Curabitur iaculis sapien ac fringilla euismod.
             """;
 
-        internal override string SaveValues()
+        internal override void SaveValues(ref SaveObject so)
         {
-            return SaveAndLoadManager.ParseObject(Text);
+            so.Write(Text);
         }
 
-        internal override void LoadValues(string val)
+        internal override void LoadValues(ref LoadObject lo)
         {
-            Text = SaveAndLoadManager.ParseObjecTo<string>(val);
+            Text = lo.Read();
         }
     }
 }

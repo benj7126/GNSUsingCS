@@ -3,6 +3,8 @@ using Raylib_cs;
 using GNSUsingCS;
 using System.Numerics;
 using System.Diagnostics;
+using GNSUsingCS.Tabs.WorkspaceTab;
+using GNSUsingCS.Tabs.ChoiceTab;
 
 /*
 string a = SaveAndLoadManager.SetupArray(["a", "f"]) + " asd";
@@ -20,9 +22,19 @@ LuaInterfacer.SetupLuaInterfacer();
 
 ApplicationManager AM = new();
 
+Tab t = SaveAndLoadManager.LoadTab("Origin");
+
+if (t == null)
+{
+    t = new ChoiceTab();
+    t.UUID = "Origin";
+
+    (t as ChoiceTab).SetTempTestThings();
+}
+
+AM.AddTab(t);
+
 AM.AddWorkspace();
-AM.ChoiceTab();
-AM.ChoiceTab();
 
 while (!WindowShouldClose())
 {

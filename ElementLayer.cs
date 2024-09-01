@@ -64,12 +64,14 @@ namespace GNSUsingCS
             return false;
         }
 
-        public override void Save()
+        /*
+        public void Save()
         {
             string save = "";
             save += SaveAndLoadManager.SetupArray(Elements.Select(e => e.Save()).ToList());
 
             Elements.ForEach(e => e.Load(e.Save()[(e.Save().IndexOf(':')+1)..]));
         }
+        */
     }
 }

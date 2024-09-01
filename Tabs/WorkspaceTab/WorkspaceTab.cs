@@ -10,12 +10,15 @@ namespace GNSUsingCS.Tabs.WorkspaceTab
 {
     internal class WorkspaceTab : Tab
     {
+        private DraggableNodeLayer layer;
+        private DropdownLayer ddl;
+
         public override string Name => "WorkspaceTab";
         public WorkspaceTab()
         {
-
             DraggableNodeLayer layer = new();
             DropdownLayer ddl = new(layer);
+
             _layers = [ddl, layer];
         }
     }

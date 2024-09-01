@@ -69,7 +69,7 @@ namespace GNSUsingCS.Elements
 
         private List<List<int>> _lines = [];
 
-        internal TextBox()
+        public TextBox()
         {
             Box = new Box();
             Box.Dimensions.Width.Set(0, 1);
