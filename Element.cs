@@ -117,6 +117,11 @@
             so.Write(Code);
             Dimensions.SaveValues(ref so);
             SaveValues(ref so);
+
+            foreach (Element c in Children)
+            {
+                c.SaveFromChild(ref so);
+            }
         }
 
         internal static Element LoadToObject(ref LoadObject lo)
@@ -135,9 +140,38 @@
             e.Dimensions.LoadValues(ref lo);
             e.LoadValues(ref lo);
 
+            foreach (Element c in e.Children)
+            {
+                c.LoadToChild(ref lo);
+            }
+
             // e.LoadCode(); -- have to make sure the lua system links right...
 
             return e;
+        }
+
+        internal void SaveFromChild(ref SaveObject so)
+        {
+            so.Write(Code);
+            Dimensions.SaveValues(ref so);
+            SaveValues(ref so);
+
+            foreach (Element c in Children)
+            {
+                c.SaveFromChild(ref so);
+            }
+        }
+
+        internal void LoadToChild(ref LoadObject lo)
+        {
+            Code = lo.Read();
+            Dimensions.LoadValues(ref lo);
+            LoadValues(ref lo);
+
+            foreach (Element c in Children)
+            {
+                c.LoadToChild(ref lo);
+            }
         }
 
         internal virtual void SaveValues(ref SaveObject so) { }
@@ -148,6 +182,12 @@
         public string Code = "";
         public bool SaveLuaState = false; // if non-local variables should be saved.
 
+                                       // TODO:
+        public bool NeedsSave = false; // for making a *, or another indicator of changed save to the tab containing this element.
+                                       // i might want to make it possible to save data from elements without saving everything in the tab
+                                       // making it edit the save file seems hard, but making a folder for the tab uuid
+                                       // and placing all elements in there seems plausible...
+
         public virtual List<Element> Children => [];
 
         internal bool IsHovered = false;
@@ -156,12 +196,13 @@
 
         internal void Draw()
         {
-            if (UseScissor)
+            bool usedScissors = UseScissor;
+            if (usedScissors)
                 ScissorManager.EnterScissor(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H);
 
             DrawElement();
 
-            if (UseScissor)
+            if (usedScissors)
                 ScissorManager.ExitScissor();
         }
 
