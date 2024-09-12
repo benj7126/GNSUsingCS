@@ -12,8 +12,10 @@
 
   <ItemGroup>
     <PackageReference Include="NLua" Version="1.7.3" />
-    <PackageReference Include="Raylib-cs" Version="6.1.1" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
+    <Reference Include="Raylib-cs">
+      <HintPath>./Raylib-cs.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
