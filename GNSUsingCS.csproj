@@ -14,8 +14,12 @@
     <PackageReference Include="NLua" Version="1.7.3" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
     <Reference Include="Raylib-cs">
-      <HintPath>./Raylib-cs.dll</HintPath>
+      <HintPath>./deps/Raylib-cs.dll</HintPath>
     </Reference>
+	  <ContentWithTargetPath Include="./deps/windows-native/raylib.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		  <TargetPath>raylib.dll</TargetPath>
+	  </ContentWithTargetPath>
   </ItemGroup>
 
 </Project>
