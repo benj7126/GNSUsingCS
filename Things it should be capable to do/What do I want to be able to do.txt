@@ -1,0 +1,30 @@
+What do I want to be able to do?
+
+Element thigs:
+
+- Create note with variable size that is filled with only a text field.
+- Create a note with a title (or rather a "technical term") as well as a description.
+	- It would be neat if I could have a minimum size for the title width, height should be decided by text size.
+	- The description should be able to fill 100% width/height - x pixels.
+	- Have an option to make the width/height be the same, so it blacks out one of the two and sets it to what it calculates the other to.
+	- Make sure the top element hast the correct minimum size - we DON'T need to care about percentages.
+	- Create a system for recalculating children well.
+	| A system to handle "technical terms", but lets figure out the other things first.
+- Create a "list" that automatically sets/places the elements - potential options (lua?) for sorting
+- A list of SubNoteTypes where you can create smaller or different versions of the note
+- Notes should have default sizes available.
+
+Workspace settings:
+- Default note/container size - if not specified in note.
+- For Kanban's, set note width.
+
+Workspace things:
+- Free placement workspace, includes ability to resize elements
+- Mind map workspace
+- Kanban workspace, only display notes that can scale to Kanban workspace width have infinite extra
+
+Other things:
+- Definitions, potentially restricted within a "definition database extention", or something.
+- The ability to search all Definitions
+- Extentions, things you can add to workspaces, that would include or maby just be lua scripts - should probably be within workspace settings.
+- Linking between workspaces, maby something like Enter(workspace) makes it think that its a "link", while GoTo(Workspace) lets you open a workspace without linking them - if a workspace can only have one link we could have a "tree" that can be navigated with shift+back(that is either a back button element and/or a keyboard/mouse shortcut), while also keeping a history that can just be navigated with back - and maby also a "True History" that you can open and use as well - since you wont be able to; start in workspace A go back -> B into something -> C and then go to A again (as the history should remove all "forwards" when going somewhere else.)

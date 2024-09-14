@@ -1,4 +1,5 @@
-﻿using GNSUsingCS.Tabs.WorkspaceTab;
+﻿using GNSUsingCS.ConfigAttributes;
+using GNSUsingCS.Tabs.WorkspaceTab;
 using Raylib_cs;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,9 @@ namespace GNSUsingCS.Elements
 {
     internal class Button : Element
     {
+        [ConfigAttributes.SubElement]
         public Label Label;
+        [ConfigAttributes.SubElement]
         public Box Box;
 
         public override List<Element> Children => [Label, Box];

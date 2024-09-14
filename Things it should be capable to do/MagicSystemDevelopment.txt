@@ -1,0 +1,2 @@
+A closed environment where I can have keywords that link within the environment, such as sigils.
+Speaking of sigils… I want an element that is a list of an image I can draw on (maby if "EDIT" is on or something) that is placed besides textbox, one line, where I can write the name of the sigil - potentially also make both of the elements / also the space in between clickable, and then take me to a new workspace where I can go into further detail?

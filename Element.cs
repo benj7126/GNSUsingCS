@@ -180,9 +180,10 @@
         internal ElementStyle Dimensions = new ElementStyle();
 
         public string Code = "";
+        [ConfigAttributes.Bool]
         public bool SaveLuaState = false; // if non-local variables should be saved.
 
-                                       // TODO:
+        [ConfigAttributes.Bool]                         // TODO:
         public bool NeedsSave = false; // for making a *, or another indicator of changed save to the tab containing this element.
                                        // i might want to make it possible to save data from elements without saving everything in the tab
                                        // making it edit the save file seems hard, but making a folder for the tab uuid

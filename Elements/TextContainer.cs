@@ -10,12 +10,19 @@ namespace GNSUsingCS.Elements
 {
     internal abstract class TextContainer : Element
     {
+        [ConfigAttributes.Int]
         public int FontSize = 24;
+        [ConfigAttributes.Vector2]
         public Vector2 Padding = new Vector2(6, 6);
+        [ConfigAttributes.SingleLineString] // might want to be able to select between all possible font types instead
         public string FontType = ""; // "" = default
+        [ConfigAttributes.Float]
         public float Spacing = 1f;
+        [ConfigAttributes.Float]
         public float LineSpacing = 1f;
+        [ConfigAttributes.Color]
         public Color Color = Color.Black;
+        [ConfigAttributes.MultiLineString]
         public string Text = """
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec leo erat, porttitor ac tempus sed, ultricies quis massa. Proin finibus mollis dolor. Ut iaculis magna sit amet libero imperdiet, iaculis laoreet nibh sagittis. Morbi metus augue, porttitor nec faucibus vitae, sodales malesuada ex. Vivamus imperdiet pulvinar justo vel lobortis. Donec justo lacus, volutpat non nunc ac, euismod tincidunt turpis. Etiam cursus eros lorem, sit amet pulvinar neque efficitur non. In hac habitasse platea dictumst. Nunc fringilla dolor ac est luctus dictum.
 

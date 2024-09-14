@@ -29,7 +29,7 @@ if (t == null)
     t = new ChoiceTab();
     t.UUID = "Origin";
 
-    (t as ChoiceTab).SetTempTestThings();
+    (t as NodeManagerTab).SetTempTestThings();
 }
 
 AM.AddTab(t);

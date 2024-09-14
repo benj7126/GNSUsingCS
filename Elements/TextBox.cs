@@ -20,6 +20,7 @@ namespace GNSUsingCS.Elements
 
     internal class TextBox : TextContainer, IInput // Also add a porgramming TextBox that auto corrects and displays possible values when writing lua.
     {
+        [ConfigAttributes.SubElement]
         public Box Box;
 
         private static Dictionary<string, List<Func<char, bool>>> RepeatSets = new()
