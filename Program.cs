@@ -5,10 +5,25 @@ using System.Numerics;
 using System.Diagnostics;
 using GNSUsingCS.Tabs.WorkspaceTab;
 using GNSUsingCS.Tabs.ChoiceTab;
+using GNSUsingCS.Elements;
 
 /*
 string a = SaveAndLoadManager.SetupArray(["a", "f"]) + " asd";
 var b = SaveAndLoadManager.ParseArray(a);
+*/
+
+/*
+// settings(of presets) / general saves testing
+Button button1 = new Button();
+
+button1.NeedsSave = false;
+button1.Label.Text = "haha string boyyy~";
+
+ElementSettingsInstance ESI = new ElementSettingsInstance(button1);
+
+Element button2 = ESI.CreateElementFrom();
+
+Console.WriteLine(new ElementSettingsInstance(new Label()).SaveInstance());
 */
 
 SaveAndLoadManager.RelativePath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
