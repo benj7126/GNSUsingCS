@@ -14,9 +14,13 @@ Element thigs:
 - A list of SubNoteTypes where you can create smaller or different versions of the note
 - Notes should have default sizes available.
 
+- Elements should be placeable and you should be able to assign a workspace to them so that they can only be use below that.
+
 Workspace settings:
 - Default note/container size - if not specified in note.
 - For Kanban's, set note width.
+
+- Whitelist / blacklist for elements. (this and/or the one where you link from Elements)
 
 Workspace things:
 - Free placement workspace, includes ability to resize elements
