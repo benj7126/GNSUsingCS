@@ -19,7 +19,10 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
             {
                 Button b = new Button();
 
-                b.Box.Background = new Raylib_cs.Color(i * 10, i * 10, i * 10, 1);
+                b.Dimensions.Width.Set(120, 0f);
+                b.Dimensions.Height.Set(24, 0f);
+
+                b.Box.Background = new Raylib_cs.Color(i * 10, i * 10, i * 10, 255);
 
                 b.Label.Text = "A-s d: " + i;
 

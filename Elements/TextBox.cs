@@ -66,7 +66,6 @@ namespace GNSUsingCS.Elements
         private Vector2 _scroll = new();
         private Vector2 _scrollRoom = new();
 
-        public override List<Element> Children => [Box];
 
         private List<List<int>> _lines = [];
 
@@ -75,7 +74,11 @@ namespace GNSUsingCS.Elements
             Box = new Box();
             Box.Dimensions.Width.Set(0, 1);
             Box.Dimensions.Height.Set(0, 1);
+
+            Children.Add(Box);
         }
+
+        protected override void DrawChildren() { }
 
         internal override void PostRecalculate(int x, int y, int w, int h)
         {
@@ -114,9 +117,9 @@ namespace GNSUsingCS.Elements
             }
         }
 
-        internal override void Update()
+        internal override void UpdateElement()
         {
-            base.Update(); //not really neccecary?
+            // base.UpdateElement(); //not really neccecary?
 
             if (!IsMouseButtonDown(MouseButton.Left))
             {

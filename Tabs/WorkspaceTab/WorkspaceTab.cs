@@ -17,9 +17,10 @@ namespace GNSUsingCS.Tabs.WorkspaceTab
         public WorkspaceTab()
         {
             DraggableNodeLayer layer = new();
-            DropdownLayer ddl = new(layer);
+            // DropdownLayer ddl = new(layer);
+            ToolboxLayer tl = new(layer);
 
-            _layers = [ddl, layer];
+            _layers = [tl, layer];
         }
     }
 }

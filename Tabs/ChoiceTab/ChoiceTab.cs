@@ -83,6 +83,7 @@ namespace GNSUsingCS.Tabs.ChoiceTab
 
             TB.Wrapping = Wrapping.WordWrapping;
 
+            /*
             Button B = new Button();
             LuaInterfacer.EnterElement(1, B);
             B.Label.Text = "Counter 0";
@@ -116,9 +117,10 @@ namespace GNSUsingCS.Tabs.ChoiceTab
                 """;
 
             B.LoadCode();
+            */
 
             elementLayer.Elements.Add(TB);
-            elementLayer.Elements.Add(B);
+            //elementLayer.Elements.Add(B);
         }
 
         public override void SaveData(ref SaveObject so)

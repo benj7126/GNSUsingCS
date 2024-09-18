@@ -17,8 +17,6 @@ namespace GNSUsingCS.Elements
         [ConfigAttributes.SubElement]
         public Box Box;
 
-        public override List<Element> Children => [Label, Box];
-
         public Button()
         {
             Label = new Label();
@@ -28,14 +26,12 @@ namespace GNSUsingCS.Elements
             Box = new Box();
             Box.Dimensions.Width.Set(0, 1);
             Box.Dimensions.Height.Set(0, 1);
+
+            Children.Add(Label);
+            Children.Add(Box);
         }
 
-        protected override void DrawElement()
-        {
-            Box.Draw();
-            Label.Draw();
-        }
-        internal override void Update()
+        internal override void UpdateElement()
         {
             // Console.WriteLine("Exists");
 

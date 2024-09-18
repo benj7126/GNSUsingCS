@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,36 +9,71 @@ namespace GNSUsingCS.Elements
 {
     internal class ElementList : AppendableElement
     {
-        public List<Element> _children = [];
-        public override List<Element> Children => _children;
         internal override bool UseScissor => false;
 
-        private int _width = 0;
+        public int ConstantHeight = -1; // if -1 then dynamic height
+        public int Margin = 0;
+
+        private float scrollability = 0;
+
+        public ElementList()
+        {
+            Dimensions.Width.Set(0, 1f);
+            Dimensions.Height.Set(0, 1f);
+            ShareHoverWithParent = true;
+        }
+
+        internal override void RecalculateChildren()
+        {
+            int height = 0;
+            
+            foreach (Element element in Children)
+            {
+                int thisHeight = ConstantHeight;
+
+                if (thisHeight == -1)
+                {
+                    element.Recalculate(0, 0, 0, 0);
+                    thisHeight = element.Dimensions.H;
+
+                    if (thisHeight == 0)
+                        thisHeight = Dimensions.W; // default to just make it a box if nothing works out.
+                }
+                
+                element.Recalculate(Dimensions.X, Dimensions.Y + height, Dimensions.W, thisHeight);
+
+                height += thisHeight + Margin;
+            }
+
+            scrollability = height - Margin;
+        }
 
         public override void Append(Element e)
         {
-            float top = 0;
-
-            if (Children.Count > 0)
-            {
-                ElementStyle es = Children.Last().Dimensions;
-
-                top = es.Y + es.H;
-            }
-
-            e.Dimensions.Top.Set((int)top, 0f);
-
             Children.Add(e);
 
-            Recalculate();
+            // Recalculate(); -- unsure if this is neccecary yet...
         }
 
-        protected override void DrawElement()
+        private float _mouseScrollVel = 0;
+        internal override void UpdateElement()
         {
-            foreach (Element e in Children)
+            int pre = Dimensions.Top.Pixels;
+            _mouseScrollVel *= Settings.MouseScrollVelocityDropoff;
+
+            if (IsHovered)
             {
-                e.Draw();
+                float scrollAmount = GetMouseWheelMoveV().Y * 10f;
+
+                _mouseScrollVel += scrollAmount * Settings.MouseScrollSensitivity;
             }
+
+            Dimensions.Top.Pixels += (int)_mouseScrollVel;
+
+            Dimensions.Top.Pixels = (int)Math.Min(Math.Max(Dimensions.Top.Pixels, -Math.Max(scrollability - Dimensions.H, 0)), 0);
+
+            if (Dimensions.Top.Pixels != pre)
+                Recalculate();
         }
     }
 }

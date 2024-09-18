@@ -189,9 +189,10 @@
                                        // making it edit the save file seems hard, but making a folder for the tab uuid
                                        // and placing all elements in there seems plausible...
 
-        public virtual List<Element> Children => [];
+        public List<Element> Children = [];
 
         internal bool IsHovered = false;
+        internal bool ShareHoverWithParent = false;
 
         internal virtual bool UseScissor => true;
 
@@ -202,16 +203,21 @@
                 ScissorManager.EnterScissor(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H);
 
             DrawElement();
+            DrawChildren();
 
             if (usedScissors)
                 ScissorManager.ExitScissor();
         }
 
         protected virtual void DrawElement() { }
+        protected virtual void DrawChildren()
+        {
+            Children.ForEach(c => c.Draw());
+        }
 
         internal virtual void PostRecalculate(int x, int y, int w, int h) { }
 
-        internal void RecalculateChildren()
+        internal virtual void RecalculateChildren()
         {
             Children.ForEach(c => c.Recalculate(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H));
         }
@@ -232,7 +238,17 @@
             Recalculate(parentSize[0], parentSize[1], parentSize[2], parentSize[3]);
         }
 
-        internal virtual void Update() {}
+        internal void Update()
+        {
+            UpdateElement();
+            UpdateChildren();
+        }
+
+        internal virtual void UpdateElement() { }
+        internal void UpdateChildren()
+        {
+            Children.ForEach(c => c.Update());
+        }
 
         internal void PreUpdate()
         {
@@ -243,7 +259,7 @@
         // only one node can be hovored so when i make nodes this needs to bo overwritten
         internal bool MouseCaptured(int px, int py)
         {
-            if (Dimensions.ContainsPoint(px, py))
+            if (Dimensions.ContainsPoint(px, py) || ShareHoverWithParent)
             {
                 IsHovered = true;
                 for (int i = 0; i < Children.Count; i++)
