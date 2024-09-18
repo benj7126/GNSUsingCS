@@ -1,0 +1,7 @@
+There should be themes for colors.
+You should, when picking color for a note type, be able to either give r, g & b (a as well if you want, somehow) or write a key.
+If you write a key, it should look at the current color theme and (firstly be able to autocorrect and show the colors when doing so) show an error when the key isnt in the current theme.
+So you can add the color if you add the note of someone else.
+
+i make note, note has box, i want box to be `background_color`, the theme has the key `background_color` with the value (0, 0, 0, 255), so the box, using this theme, will be black
+if the theme dosent have a `background_color`, then it shows an error either in a console tab or jut at the top like hyprland

@@ -1,0 +1,16 @@
+home - go to beginning of line (ignoring white space - except if at whitespace)
+end - go to end of line
+
+ctrl+home - start of doc
+ctrl+end - end of doc
+
+insert - override (as it dose)
+
+page up + page down
+
+ctrl + (c, v, x, a)
+
+ctrl + t - open new tap, at Origin
+ctrl + shift + t - open "this"
+
+undo & redo

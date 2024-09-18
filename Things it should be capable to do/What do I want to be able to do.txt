@@ -14,9 +14,13 @@ Element thigs:
 - A list of SubNoteTypes where you can create smaller or different versions of the note
 - Notes should have default sizes available.
 
+- Elements should be placeable and you should be able to assign a workspace to them so that they can only be use below that.
+
 Workspace settings:
 - Default note/container size - if not specified in note.
 - For Kanban's, set note width.
+
+- Whitelist / blacklist for elements. (this and/or the one where you link from Elements)
 
 Workspace things:
 - Free placement workspace, includes ability to resize elements
@@ -28,3 +32,6 @@ Other things:
 - The ability to search all Definitions
 - Extentions, things you can add to workspaces, that would include or maby just be lua scripts - should probably be within workspace settings.
 - Linking between workspaces, maby something like Enter(workspace) makes it think that its a "link", while GoTo(Workspace) lets you open a workspace without linking them - if a workspace can only have one link we could have a "tree" that can be navigated with shift+back(that is either a back button element and/or a keyboard/mouse shortcut), while also keeping a history that can just be navigated with back - and maby also a "True History" that you can open and use as well - since you wont be able to; start in workspace A go back -> B into something -> C and then go to A again (as the history should remove all "forwards" when going somewhere else.)
+
+Fix:
+- paths should use "/" not "\"
