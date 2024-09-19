@@ -17,9 +17,22 @@ namespace GNSUsingCS
         private Dictionary<string, ConfigAttributes.ConfigAttribute> fieldToAttribute = [];
         private List<ConfigAttributes.ChildElements> childElements;
 
+        public StyleDimension Left = new();
+        public StyleDimension Top = new();
+
+        public StyleDimension Width = new();
+        public StyleDimension Height = new();
+
         public ElementSettingsInstance(Element toCreateFrom)
         {
             baseType = toCreateFrom.GetType();
+
+            Left = toCreateFrom.Dimensions.Left.CreateClone();
+            Top = toCreateFrom.Dimensions.Top.CreateClone();
+
+            Width = toCreateFrom.Dimensions.Width.CreateClone();
+            Height = toCreateFrom.Dimensions.Height.CreateClone();
+
             foreach (FieldInfo field in baseType.GetFields())
             {
                 ConfigAttributes.ConfigAttribute ca = (ConfigAttributes.ConfigAttribute)field.GetCustomAttribute(typeof(ConfigAttributes.ConfigAttribute));
@@ -35,6 +48,12 @@ namespace GNSUsingCS
         public Element CreateElementFrom()
         {
             Element element = (Element)Activator.CreateInstance(baseType);
+
+            element.Dimensions.Left = Left.CreateClone();
+            element.Dimensions.Top = Top.CreateClone();
+
+            element.Dimensions.Width = Width.CreateClone();
+            element.Dimensions.Height = Height.CreateClone();
 
             if (element is null)
                 throw new Exception("Element settings instance was not created from an Element"); // shouldnt be possible...

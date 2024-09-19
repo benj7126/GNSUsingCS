@@ -12,6 +12,14 @@
         }
 
         public int GetValue(int containerSize) => Pixels + (int)(Percent * containerSize);
+
+        public StyleDimension CreateClone()
+        {
+            StyleDimension sd = new StyleDimension();
+            sd.Set(Pixels, Percent);
+            return sd;
+        }
+
         internal void SaveValues(ref SaveObject so)
         {
             so.Write(Pixels);

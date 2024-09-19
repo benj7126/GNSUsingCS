@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GNSUsingCS.Elements
 {
-    internal abstract class TextContainer : Element
+    internal abstract class TextContainer : ReverseDrawElement
     {
         [ConfigAttributes.Int]
         public int FontSize = 24;

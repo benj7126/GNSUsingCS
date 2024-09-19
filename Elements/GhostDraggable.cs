@@ -11,6 +11,7 @@ namespace GNSUsingCS.Elements
 {
     internal class GhostDraggable : Element // could also make a ghost scale...
     {
+        internal static GhostDraggable Instance = null;
         private bool ChangedCalc = false;
         internal override void Draw()
         {
@@ -22,6 +23,7 @@ namespace GNSUsingCS.Elements
             ChangedCalc = true;
             Recalculate();
             ScissorManager.GodScissor(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H);
+
 
             DrawElement();
             DrawChildren();
@@ -54,13 +56,15 @@ namespace GNSUsingCS.Elements
                 Recalculate();
             }
 
-            if (!_grapped && IsHovered && IsMouseButtonDown(MouseButton.Left))
+            if (!_grapped && Instance is null && IsHovered && IsMouseButtonDown(MouseButton.Left))
             {
+                Instance = this;
                 _grapped = true;
                 _offset = new();
             }
             if (!IsMouseButtonDown(MouseButton.Left))
             {
+                Instance = null;
                 _grapped = false;
             }
         }

@@ -24,20 +24,22 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
             list = new ElementList();
             list.Margin = 10;
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 10; i++)
             {
-                GhostDraggable draggable = new GhostDraggable();
+                GhostDraggable draggable = new GhostDraggable(); 
                 draggable.Dimensions.Width.Set(0, 1f);
                 draggable.Dimensions.Height.Set(0, 1f);
                 list.Append(draggable);
 
-                Box obox = new Box();
+                Label tempLabel = new Label();
+                tempLabel.Text = "Test " + i;
+                tempLabel.Dimensions.Width.Set(0, 1f);
+                tempLabel.Dimensions.Height.Set(24, 0f);
+                tempLabel.FontSize = 28;
 
-                obox.Dimensions.Width.Set(0, 1f);
-                obox.Dimensions.Height.Set(0, 1f);
-                obox.Background = Color.Violet;
+                ElementInstanceDisplay eid = new ElementInstanceDisplay(new ElementSettingsInstance(tempLabel));
 
-                draggable.Children.Add(obox);
+                draggable.Children.Add(eid);
 
                 /*
                 Button button = new Button();

@@ -78,8 +78,6 @@ namespace GNSUsingCS.Elements
             Children.Add(Box);
         }
 
-        protected override void DrawChildren() { }
-
         internal override void PostRecalculate(int x, int y, int w, int h)
         {
             PrepareTexbox(new Vector2(int.MinValue, int.MinValue));
@@ -87,7 +85,6 @@ namespace GNSUsingCS.Elements
 
         protected override void DrawElement()
         {
-            Box.Draw();
             // DrawTextEx(FontManager.GetFont(FontType, FontSize), Text, new Vector2(Dimensions.X, Dimensions.Y), FontSize, Spacing, Color);
             DrawCodepoints();
 

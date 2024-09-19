@@ -27,7 +27,7 @@ namespace GNSUsingCS
                 return;
             }
 
-            (int, int, int, int) outerLayer = ScissorLayers.Last();
+            (int, int, int, int) outerLayer = ScissorLayers.First();
 
             if (x < outerLayer.Item1)
             {
@@ -69,8 +69,8 @@ namespace GNSUsingCS
                 return;
             }
 
-            (int, int, int, int) outerLayer = ScissorLayers.Last();
-            BeginScissorMode(outerLayer.Item1, outerLayer.Item2, outerLayer.Item3, outerLayer.Item4);
+            (int x, int y, int w, int h) = ScissorLayers.Last();
+            BeginScissorMode(x, y, w, h);
         }
     }
 }
