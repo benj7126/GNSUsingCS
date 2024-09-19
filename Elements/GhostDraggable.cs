@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GNSUsingCS.Elements
 {
-    internal class GhostDraggable : Element
+    internal class GhostDraggable : Element // could also make a ghost scale...
     {
         private bool ChangedCalc = false;
         internal override void Draw()
