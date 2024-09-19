@@ -106,6 +106,15 @@
 
     internal abstract class Element
     {
+        internal Dictionary<string, Action> actions = [];
+        public void ActivateMethod(string type)
+        {
+            if (actions.ContainsKey(type))
+                actions[type]();
+            else
+                LuaInterfacer.TryCallMethod(type);
+        }
+
         public void LoadCode()
         {
             LuaInterfacer.SetElementCode(Code);
@@ -192,11 +201,11 @@
         public List<Element> Children = [];
 
         internal bool IsHovered = false;
-        internal bool ShareHoverWithParent = false;
+        public bool ShareHoverWithParent = false;
 
         internal virtual bool UseScissor => true;
 
-        internal void Draw()
+        internal virtual void Draw()
         {
             bool usedScissors = UseScissor;
             if (usedScissors)
@@ -222,8 +231,8 @@
             Children.ForEach(c => c.Recalculate(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H));
         }
 
-        int[] parentSize = [0, 0, 0, 0];
-        internal void Recalculate(int x, int y, int w, int h)
+        internal int[] parentSize = [0, 0, 0, 0];
+        internal virtual void Recalculate(int x, int y, int w, int h)
         {
             Dimensions.Recalculate(x, y, w, h);
 

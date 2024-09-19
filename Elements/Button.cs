@@ -27,8 +27,8 @@ namespace GNSUsingCS.Elements
             Box.Dimensions.Width.Set(0, 1);
             Box.Dimensions.Height.Set(0, 1);
 
-            Children.Add(Label);
             Children.Add(Box);
+            Children.Add(Label);
         }
 
         internal override void UpdateElement()
@@ -37,7 +37,7 @@ namespace GNSUsingCS.Elements
 
             if (IsHovered && IsMouseButtonPressed(MouseButton.Left))
             {
-                LuaInterfacer.TryCallMethod("OnPress");
+                ActivateMethod("OnPress");
             }
         }
     }

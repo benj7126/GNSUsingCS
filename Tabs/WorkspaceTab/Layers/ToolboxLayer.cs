@@ -12,7 +12,6 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
     internal class ToolboxLayer : ElementLayer
     {
         // should be images of the elements
-        List<Button> buttons = new List<Button>(); // REALLY need to 
         private Box box = new Box();
         private ElementList list;
 
@@ -25,8 +24,33 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
             list = new ElementList();
             list.Margin = 10;
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1; i++)
             {
+                GhostDraggable draggable = new GhostDraggable();
+                draggable.Dimensions.Width.Set(0, 1f);
+                draggable.Dimensions.Height.Set(0, 1f);
+                list.Append(draggable);
+
+                Box obox = new Box();
+
+                obox.Dimensions.Width.Set(0, 1f);
+                obox.Dimensions.Height.Set(0, 1f);
+                obox.Background = Color.Violet;
+
+                draggable.Children.Add(obox);
+
+                /*
+                Button button = new Button();
+                int _i = i+1;
+                button.actions.Add("OnPress", () => Console.WriteLine("pressed " + _i));
+                button.Dimensions.Width.Set(0, 1f);
+                button.Dimensions.Height.Set(0, 1f);
+                button.Box.Background = Color.Violet;
+                button.Label.Text = _i + "'th button";
+                list.Append(button);
+                */
+
+                /*
                 Box obox = new Box();
 
                 obox.Dimensions.Width.Set(0, 1f);
@@ -47,6 +71,7 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
                 }
 
                 list.Append(obox);
+                */
             }
 
             box.Children.Add(list);

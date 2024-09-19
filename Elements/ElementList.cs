@@ -51,7 +51,7 @@ namespace GNSUsingCS.Elements
         public override void Append(Element e)
         {
             Children.Add(e);
-
+            // RecalculateChildren();
             // Recalculate(); -- unsure if this is neccecary yet...
         }
 
@@ -63,7 +63,7 @@ namespace GNSUsingCS.Elements
 
             if (IsHovered)
             {
-                float scrollAmount = GetMouseWheelMoveV().Y * 10f;
+                float scrollAmount = GetMouseWheelMoveV().Y;
 
                 _mouseScrollVel += scrollAmount * Settings.MouseScrollSensitivity;
             }

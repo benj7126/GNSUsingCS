@@ -83,7 +83,6 @@ namespace GNSUsingCS.Tabs.ChoiceTab
 
             TB.Wrapping = Wrapping.WordWrapping;
 
-            /*
             Button B = new Button();
             LuaInterfacer.EnterElement(1, B);
             B.Label.Text = "Counter 0";
@@ -91,36 +90,28 @@ namespace GNSUsingCS.Tabs.ChoiceTab
             B.Dimensions.Height.Set(20, 0f);
             B.Label.FontSize = 20;
             B.Code = """
-                if G.counter == nil then
-                    G.counter = 0
-                end
+                -- if G.counter == nil then
+                --     G.counter = 0
+                -- end
+                G.counter = G.counter or 0
 
 
                 function OnPress()
-                    -- if i == 10 then
-                    --     this:LoadCode()
-                    -- end
-
                     G.counter = G.counter + 1
 
                     this.Code = this.Code .. "+1"
                     this:LoadCode()
                 
                     this.Label.Text = "Counter " .. i .. " | " .. G.counter
-                    this:Recalculate()
-
-                    print(this.Code)
-
                 end
 
                 i=0
                 """;
 
             B.LoadCode();
-            */
 
             elementLayer.Elements.Add(TB);
-            //elementLayer.Elements.Add(B);
+            elementLayer.Elements.Add(B);
         }
 
         public override void SaveData(ref SaveObject so)

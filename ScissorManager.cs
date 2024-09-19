@@ -53,6 +53,12 @@ namespace GNSUsingCS
             BeginScissorMode(x, y, w, h);
         }
 
+        public static void GodScissor(int x, int y, int w, int h)
+        {
+            ScissorLayers.Push(new(x, y, w, h));
+            BeginScissorMode(x, y, w, h);
+        }
+
         public static void ExitScissor()
         {
             ScissorLayers.Pop();
