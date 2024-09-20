@@ -6,6 +6,47 @@ using System.Diagnostics;
 using GNSUsingCS.Tabs.WorkspaceTab;
 using GNSUsingCS.Tabs.ChoiceTab;
 using GNSUsingCS.Elements;
+using System.IO.Compression;
+
+/*
+
+string zipFile = "compressed_files.zip";
+string contentTxt = "someVar = imp 'textFile.txt'";
+string textFileTxt = "stuff";
+
+using (FileStream zipToCreate = new FileStream(zipFile, FileMode.Create))
+using (ZipArchive archive = new ZipArchive(zipToCreate, ZipArchiveMode.Create))
+{
+    // Create and write to content.txt
+    ZipArchiveEntry contentEntry = archive.CreateEntry("content.txt");
+    using (StreamWriter writer = new StreamWriter(contentEntry.Open()))
+    {
+        writer.Write(contentTxt);
+    }
+
+    // Create and write to assets/textFile.txt
+    ZipArchiveEntry textFileEntry = archive.CreateEntry("assets/textFile.txt");
+    using (StreamWriter writer = new StreamWriter(textFileEntry.Open()))
+    {
+        writer.Write(textFileTxt);
+    }
+}
+
+using (ZipArchive archive = ZipFile.OpenRead(zipFile))
+{
+    foreach (ZipArchiveEntry entry in archive.Entries)
+    {
+        Console.WriteLine($"File: {entry.FullName}");
+        using (StreamReader reader = new StreamReader(entry.Open()))
+        {
+            string content = reader.ReadToEnd();
+            Console.WriteLine($"Content: {content}\n");
+        }
+    }
+}
+
+Console.ReadKey();
+*/
 
 /*
 string a = SaveAndLoadManager.SetupArray(["a", "f"]) + " asd";
@@ -23,7 +64,11 @@ ElementSettingsInstance ESI = new ElementSettingsInstance(button1);
 
 Element button2 = ESI.CreateElementFrom();
 
-Console.WriteLine(new ElementSettingsInstance(new Label()).SaveInstance());
+new ElementSettingsInstance(button2).SaveInstance("testFile.save");
+
+ElementSettingsInstance esi3 = ElementSettingsInstance.CreateInstance("testFile.save");
+
+Element button3 = esi3.CreateElementFrom();
 */
 
 SaveAndLoadManager.RelativePath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);

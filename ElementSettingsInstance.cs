@@ -1,6 +1,7 @@
 ﻿using Raylib_cs;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
@@ -13,6 +14,8 @@ namespace GNSUsingCS
     // would make some things a lot easier, i'd say...
     internal class ElementSettingsInstance
     {
+        const string sourceName = "source.elm";
+
         private Type baseType;
         private Dictionary<string, ConfigAttributes.ConfigAttribute> fieldToAttribute = [];
         private List<ConfigAttributes.ChildElements> childElements;
@@ -39,7 +42,7 @@ namespace GNSUsingCS
                 if (ca is null)
                     continue;
 
-                ca.SetValue(field.GetValue(toCreateFrom));
+                ca.SetValue(field.GetValue(toCreateFrom), field.Name);
 
                 fieldToAttribute.Add(field.Name, ca);
             }
@@ -66,23 +69,89 @@ namespace GNSUsingCS
             return element;
         }
 
-        public string SaveInstance()
+        public void SaveInstance(string path)
+        {
+            using (FileStream stream = new FileStream(path, FileMode.Create))
+            using (ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Create))
+            {
+                SaveInstance("", archive);
+            }
+        }
+
+        public void SaveInstance(string path, ZipArchive archive)
         {
             // needs to save baseType and childElements as well
             // should maby indent for the attributes?? - though that might look really weird...
-            string s = "";
+            string saveString = "BaseType: " + baseType + "\n";
 
             foreach (KeyValuePair<string, ConfigAttributes.ConfigAttribute> keyValuePair in fieldToAttribute)
             {
-                s += keyValuePair.Key + ": " + keyValuePair.Value.SaveToString() + "\n";
+                saveString += keyValuePair.Key + ": " + keyValuePair.Value.SaveToString(path, archive) + "\n";
             }
 
-            return s;
+            ZipArchiveEntry contentEntry = archive.CreateEntry(path + sourceName);
+            using (StreamWriter writer = new StreamWriter(contentEntry.Open()))
+            {
+                writer.Write(saveString);
+            }
         }
-        
-        public static ElementSettingsInstance LoadInstance()
+
+        private void LoadInstance(Dictionary<string, string> fields, string path, ZipArchive archive)
         {
+            foreach (KeyValuePair<string, ConfigAttributes.ConfigAttribute> keyValuePair in fieldToAttribute)
+            {
+                if (fields.ContainsKey(keyValuePair.Key))
+                {
+                    keyValuePair.Value.LoadFromString(fields[keyValuePair.Key], path, archive);
+                }
+            }
+        }
+
+        public static ElementSettingsInstance CreateInstance(string path)
+        {
+            using (ZipArchive archive = ZipFile.OpenRead(path))
+            {
+                return CreateInstance(archive, "");
+            }
+
             return null;
+        }
+        public static ElementSettingsInstance CreateInstance(ZipArchive archive, string path)
+        {
+            ElementSettingsInstance esi;
+
+            string fullPath = path + sourceName;
+
+            using (StreamReader reader = new StreamReader(archive.GetEntry(fullPath).Open()))
+            {
+                string[] source = reader.ReadToEnd().Split("\n");
+
+                Dictionary<string, string> fields = new();
+
+                foreach (string entry in source)
+                {
+                    int idx = entry.IndexOf(":");
+
+                    if (idx < 0)
+                        continue;
+
+                    fields.Add(entry[..idx], entry[(idx + 1)..]);
+                }
+
+                if (!fields.ContainsKey("BaseType"))
+                    throw new Exception("Missing type");
+
+                Type t = typeof(ElementSettingsInstance).Assembly.GetType(fields["BaseType"]);
+                if (t is null)
+                    throw new Exception("Type not found");
+                fields.Remove("BaseType");
+
+                esi = new ElementSettingsInstance((Element)Activator.CreateInstance(t));
+
+                esi.LoadInstance(fields, path, archive);
+            }
+
+            return esi;
         }
     }
 }
