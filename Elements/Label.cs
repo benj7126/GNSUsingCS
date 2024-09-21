@@ -11,7 +11,7 @@ namespace GNSUsingCS.Elements
 {
     internal class Label : TextContainer
     {
-        public bool ScaleHeightWithFont = false; // should somehow set the height to FontSize pixels, but only during note/element editing.
+        public bool ScaleHeightWithFont = true; // should somehow set the height to FontSize pixels, but only during note/element editing.
                                                  // *not every frame...
         public bool UseAbsoluteMinSize = false;
         public Label() : base()

@@ -35,8 +35,7 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
                 Label tempLabel = new Label();
                 tempLabel.Text = "Test " + i;
                 tempLabel.Dimensions.Width.Set(0, 1f);
-                tempLabel.Dimensions.Height.Set(24, 0f);
-                tempLabel.FontSize = 28;
+                tempLabel.FontSize = 42;
 
 
 
