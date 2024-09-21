@@ -304,7 +304,7 @@ namespace GNSUsingCS.ConfigAttributes
         }
     }
 
-    internal class CodeString : String
+    internal class CodeString : MultiLineString
     {
     }
 

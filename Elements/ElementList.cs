@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GNSUsingCS.Elements.Modules.MouseCapture;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GNSUsingCS.Elements
 {
-    internal class ElementList : AppendableElement
+    internal class ElementList : Element
     {
         internal override bool UseScissor => false;
 
@@ -20,7 +21,7 @@ namespace GNSUsingCS.Elements
         {
             Dimensions.Width.Set(0, 1f);
             Dimensions.Height.Set(0, 1f);
-            ShareHoverWithParent = true;
+            MouseCapture = new ParentMouseCapture();
         }
 
         internal override void RecalculateChildren()
@@ -48,12 +49,14 @@ namespace GNSUsingCS.Elements
             scrollability = height - Margin;
         }
 
+        /* -- appendable element removed as it seemed redundant...
         public override void Append(Element e)
         {
             Children.Add(e);
             // RecalculateChildren();
             // Recalculate(); -- unsure if this is neccecary yet...
         }
+        */
 
         private float _mouseScrollVel = 0;
         internal override void UpdateElement()

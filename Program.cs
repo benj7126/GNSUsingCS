@@ -59,16 +59,21 @@ Button button1 = new Button();
 
 button1.NeedsSave = false;
 button1.Label.Text = "haha string boyyy~";
+Console.WriteLine(((Button)button1).Label.Text);
 
 ElementSettingsInstance ESI = new ElementSettingsInstance(button1);
 
 Element button2 = ESI.CreateElementFrom();
+Console.WriteLine(((Button)button2).Label.Text);
 
 new ElementSettingsInstance(button2).SaveInstance("testFile.save");
 
 ElementSettingsInstance esi3 = ElementSettingsInstance.CreateInstance("testFile.save");
 
 Element button3 = esi3.CreateElementFrom();
+Console.WriteLine(((Button)button3).Label.Text);
+
+Console.ReadKey();
 */
 
 SaveAndLoadManager.RelativePath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);

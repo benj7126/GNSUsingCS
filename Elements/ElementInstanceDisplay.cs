@@ -1,4 +1,6 @@
-﻿using Raylib_cs;
+﻿using GNSUsingCS.Elements.Modules.Draw;
+using GNSUsingCS.Elements.Modules.Recalculate;
+using Raylib_cs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +11,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace GNSUsingCS.Elements
 {
-    internal class ElementInstanceDisplay : ReverseDrawElement
+    internal class ElementInstanceDisplay : Element
     {
         public Box box;
         private Element toDraw;
@@ -21,33 +23,23 @@ namespace GNSUsingCS.Elements
             box.Dimensions.Width.Set(0, 1f);
             box.Dimensions.Height.Set(0, 1f);
 
+            DrawModule = new ChildrenFirstDraw();
+
             Children.Add(box);
             toDraw = esi.CreateElementFrom();
 
-            Children.Add(toDraw);
+            RecalculateModule = new FitChildElementRecalculate(RecalculateModule, toDraw);
         }
 
-        internal override void Recalculate(int x, int y, int w, int h)
+        internal override void DrawElement()
         {
-            Dimensions.Width.Set(0, 1f);
-            Dimensions.Height.Set(0, 1f);
-
-            base.Recalculate(x, y, w, h);
-
-            Dimensions.Width.Set(toDraw.Dimensions.W, 0f);
-            Dimensions.Height.Set(toDraw.Dimensions.H, 0f);
-            Dimensions.Left.Set(0, 0.5f);
-            Dimensions.Top.Set(0, 0.5f);
-
-            Dimensions.HAlign = 0.5f;
-            Dimensions.VAlign = 0.5f;
-
-            base.Recalculate(x, y, w, h); // make this scale to toDraw element
+            toDraw.DrawElement();
         }
 
-        internal override void Draw()
+        internal override void RecalculateChildren()
         {
-            base.Draw();
+            base.RecalculateChildren();
+            toDraw.Recalculate(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H); // its scuffed but idk bro...
         }
     }
 }

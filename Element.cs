@@ -1,4 +1,9 @@
-﻿namespace GNSUsingCS
+﻿using GNSUsingCS.Elements.Modules.Draw;
+using GNSUsingCS.Elements.Modules.MouseCapture;
+using GNSUsingCS.Elements.Modules.Recalculate;
+using System.Reflection;
+
+namespace GNSUsingCS
 {
     internal class StyleDimension
     {
@@ -196,6 +201,7 @@
 
         internal ElementStyle Dimensions = new ElementStyle();
 
+        [ConfigAttributes.CodeString]
         public string Code = "";
         [ConfigAttributes.Bool]
         public bool SaveLuaState = false; // if non-local variables should be saved.
@@ -209,25 +215,15 @@
         public List<Element> Children = [];
 
         internal bool IsHovered = false;
-        public bool ShareHoverWithParent = false;
 
         internal virtual bool UseScissor => true;
+        internal IScissorModule ScissorModule = new DefaultScissor();
 
-        internal virtual void Draw()
-        {
-            bool usedScissors = UseScissor;
-            if (usedScissors)
-                ScissorManager.EnterScissor(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H);
+        internal IDrawModule DrawModule = new ElementFirstDraw();
+        internal void Draw() { DrawModule.Draw(this); }
 
-            DrawElement();
-            DrawChildren();
-
-            if (usedScissors)
-                ScissorManager.ExitScissor();
-        }
-
-        protected virtual void DrawElement() { }
-        protected virtual void DrawChildren()
+        internal virtual void DrawElement() { }
+        internal virtual void DrawChildren()
         {
             Children.ForEach(c => c.Draw());
         }
@@ -239,21 +235,10 @@
             Children.ForEach(c => c.Recalculate(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H));
         }
 
+        internal IRecalculateModule RecalculateModule = new DefaultRecalculate();
         internal int[] parentSize = [0, 0, 0, 0];
-        internal virtual void Recalculate(int x, int y, int w, int h)
-        {
-            Dimensions.Recalculate(x, y, w, h);
-
-            RecalculateChildren();
-            
-            parentSize = [x, y, w, h];
-            PostRecalculate(x, y, w, h);
-        }
-
-        public void Recalculate()
-        {
-            Recalculate(parentSize[0], parentSize[1], parentSize[2], parentSize[3]);
-        }
+        internal virtual void Recalculate(int x, int y, int w, int h) { RecalculateModule.Recalculate(x, y, w, h, this); }
+        public void Recalculate() { Recalculate(parentSize[0], parentSize[1], parentSize[2], parentSize[3]); }
 
         internal void Update()
         {
@@ -274,28 +259,8 @@
         }
 
         // only one node can be hovored so when i make nodes this needs to bo overwritten
-        internal bool MouseCaptured(int px, int py)
-        {
-            if (Dimensions.ContainsPoint(px, py) || ShareHoverWithParent)
-            {
-                IsHovered = true;
-                for (int i = 0; i < Children.Count; i++)
-                {
-                    // TODO: \/
-                    /* this or below, unsure yet...
-                    if (Children[i].MouseCaptured(px, py))
-                    {
-                        return true;
-                    }
-                    */
-                    Children[i].MouseCaptured(px, py);
-                }
-
-                return true;
-            }
-
-            return false;
-        }
+        internal IMouseCapture MouseCapture = new DefaultMouseCapture();
+        internal bool MouseCaptured(int px, int py) { return MouseCapture.MouseCaptured(px, py, this); }
 
         /*
         internal string SaveChildValues()

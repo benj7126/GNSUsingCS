@@ -1,4 +1,5 @@
-﻿using Raylib_cs;
+﻿using GNSUsingCS.Elements.Modules.Recalculate;
+using Raylib_cs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace GNSUsingCS.Elements
     {
         internal static GhostDraggable Instance = null;
         private bool ChangedCalc = false;
+        /* -- switch to modules + should draw on top of layer, not after element.
         internal override void Draw()
         {
             base.Draw();
@@ -35,9 +37,18 @@ namespace GNSUsingCS.Elements
             ChangedCalc = false;
             Recalculate();
         }
+        */
+
+        private OffsetRecalculate offsetRecalculate;
+        public GhostDraggable()
+        {
+            offsetRecalculate = new OffsetRecalculate(new DefaultRecalculate());
+            RecalculateModule = offsetRecalculate;
+        }
+
 
         private bool _grapped = false;
-        private Vector2 _offset = new();
+        /* -- keep the idea while transitioning to modules
         internal override void Recalculate(int x, int y, int w, int h)
         {
             if (ChangedCalc)
@@ -47,12 +58,13 @@ namespace GNSUsingCS.Elements
 
             parentSize = [x, y, w, h];
         }
+        */
 
         internal override void UpdateElement()
         {
             if (_grapped && MouseManager.MouseVelocity.Length() > 0.01)
             {
-                _offset += MouseManager.MouseVelocity;
+                offsetRecalculate.Offset += MouseManager.MouseVelocity;
                 Recalculate();
             }
 
@@ -60,7 +72,7 @@ namespace GNSUsingCS.Elements
             {
                 Instance = this;
                 _grapped = true;
-                _offset = new();
+                offsetRecalculate.Offset = new();
             }
             if (!IsMouseButtonDown(MouseButton.Left))
             {

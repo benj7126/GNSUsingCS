@@ -26,7 +26,7 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
 
                 b.Label.Text = "A-s d: " + i;
 
-                list.Append(b);
+                list.Children.Add(b);
             }
 
             return list;

@@ -1,4 +1,5 @@
-﻿using Raylib_cs;
+﻿using GNSUsingCS.Elements.Modules.Recalculate;
+using Raylib_cs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,23 @@ namespace GNSUsingCS.Elements
     {
         public bool ScaleHeightWithFont = false; // should somehow set the height to FontSize pixels, but only during note/element editing.
                                                  // *not every frame...
+        public bool UseAbsoluteMinSize = false;
+        public Label() : base()
+        {
+            RecalculateModule = new MinSizeRecalculate(() => {
+                Vector2 size = MeasureTextEx(FontManager.GetFont(FontType, FontSize), Text, FontSize, Spacing);
 
-        protected override void DrawElement()
+                if (!ScaleHeightWithFont)
+                    size.Y = 0;
+
+                if (!UseAbsoluteMinSize)
+                    size.X = 0;
+
+                return size;
+            });
+        }
+
+        internal override void DrawElement()
         {
             DrawTextEx(FontManager.GetFont(FontType, FontSize), Text, new Vector2(Dimensions.X, Dimensions.Y), FontSize, Spacing, Color);
         }

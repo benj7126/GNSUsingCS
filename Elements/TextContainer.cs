@@ -1,4 +1,5 @@
-﻿using Raylib_cs;
+﻿using GNSUsingCS.Elements.Modules.Draw;
+using Raylib_cs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GNSUsingCS.Elements
 {
-    internal abstract class TextContainer : ReverseDrawElement
+    internal abstract class TextContainer : Element
     {
         [ConfigAttributes.Int]
         public int FontSize = 24;
@@ -34,6 +35,11 @@ namespace GNSUsingCS.Elements
 
             Ut bibendum fringilla odio, vel dignissim orci dignissim convallis. Integer nec vestibulum erat, at mattis purus. Vestibulum ut accumsan eros, quis auctor felis. Nunc porta feugiat nisl in finibus. Sed a lorem id diam imperdiet pretium. Ut pharetra rhoncus sodales. Curabitur iaculis sapien ac fringilla euismod.
             """;
+
+        public TextContainer()
+        {
+            DrawModule = new ChildrenFirstDraw();
+        }
 
         internal override void SaveValues(ref SaveObject so)
         {

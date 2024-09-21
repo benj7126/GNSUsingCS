@@ -1,4 +1,5 @@
 ﻿using GNSUsingCS.Elements;
+using GNSUsingCS.Elements.Modules.Recalculate;
 using Raylib_cs;
 using System;
 using System.Collections.Generic;
@@ -26,10 +27,10 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
 
             for (int i = 0; i < 10; i++)
             {
-                GhostDraggable draggable = new GhostDraggable(); 
+                GhostDraggable draggable = new GhostDraggable();
                 draggable.Dimensions.Width.Set(0, 1f);
                 draggable.Dimensions.Height.Set(0, 1f);
-                list.Append(draggable);
+                list.Children.Add(draggable);
 
                 Label tempLabel = new Label();
                 tempLabel.Text = "Test " + i;
@@ -37,7 +38,10 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
                 tempLabel.Dimensions.Height.Set(24, 0f);
                 tempLabel.FontSize = 28;
 
+
+
                 ElementInstanceDisplay eid = new ElementInstanceDisplay(new ElementSettingsInstance(tempLabel));
+                draggable.RecalculateModule = new FitChildElementRecalculate(draggable.RecalculateModule, eid);
 
                 draggable.Children.Add(eid);
 

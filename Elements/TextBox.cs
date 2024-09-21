@@ -83,7 +83,7 @@ namespace GNSUsingCS.Elements
             PrepareTexbox(new Vector2(int.MinValue, int.MinValue));
         }
 
-        protected override void DrawElement()
+        internal override void DrawElement()
         {
             // DrawTextEx(FontManager.GetFont(FontType, FontSize), Text, new Vector2(Dimensions.X, Dimensions.Y), FontSize, Spacing, Color);
             DrawCodepoints();

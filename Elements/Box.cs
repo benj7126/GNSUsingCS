@@ -13,7 +13,7 @@ namespace GNSUsingCS.Elements
     {
         public Color Background = Color.Orange;
         public Color Border = Color.Black;
-        protected override void DrawElement()
+        internal override void DrawElement()
         {
             IsHovered = false;
             DrawRectangle(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H, IsHovered ? Color.Black : Background);
