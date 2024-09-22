@@ -1,0 +1,1 @@
+I'd like to be able to have a Kanban that links to some parent(or parent of parent or above) workspace, where when below that workspace you can highlight words and add them to the kanban (or maby one of the possible kanbans). Then you can in the kanban go to were the word is written.

@@ -96,10 +96,12 @@ namespace GNSUsingCS
             L.DoString(text);
         }
 
-        public static void TryCallMethod(string name, params object[] objs)
+        public static void TryCallMethod(string name, params object[] args)
         {
+            Console.WriteLine(L[name]); // wtf... why'd this suddenly stop working..?
+
             if (L[name] is not null)
-                L.GetFunction(name).Call(objs);
+                L.GetFunction(name).Call(args);
         }
 
         internal static void EnterElement(int idx, Element element)

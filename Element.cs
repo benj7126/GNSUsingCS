@@ -120,12 +120,12 @@ namespace GNSUsingCS
     internal abstract class Element
     {
         internal Dictionary<string, Action> actions = [];
-        public void ActivateMethod(string type)
+        public void ActivateMethod(string type, object[] args = null)
         {
             if (actions.ContainsKey(type))
                 actions[type]();
             else
-                LuaInterfacer.TryCallMethod(type);
+                LuaInterfacer.TryCallMethod(type, args);
         }
 
         public void LoadCode()
@@ -216,17 +216,20 @@ namespace GNSUsingCS
 
         internal bool IsHovered = false;
 
-        internal virtual bool UseScissor => true;
+        internal bool UseScissor = true;
         internal IScissorModule ScissorModule = new DefaultScissor();
 
         internal IDrawModule DrawModule = new ElementFirstDraw();
-        internal void Draw() { DrawModule.Draw(this); }
 
+        internal void Draw() { DrawModule.Draw(this); }
         internal virtual void DrawElement() { }
         internal virtual void DrawChildren()
         {
             Children.ForEach(c => c.Draw());
         }
+
+        internal void PostDraw() { InternalPostDraw(); Children.ForEach(c => c.PostDraw()); }
+        internal virtual void InternalPostDraw() { }
 
         internal virtual void PostRecalculate(int x, int y, int w, int h) { }
 

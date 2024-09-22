@@ -8,7 +8,7 @@ namespace GNSUsingCS
 {
     internal abstract class Layer
     {
-        public virtual void Draw(int x, int y, int w, int h) { }
+        public virtual void Draw() { }
         public virtual void Resize(int x, int y, int w, int h) { }
         public virtual void Update() { }
         public virtual void PreUpdate() { }

@@ -47,8 +47,7 @@ namespace GNSUsingCS
             }
 
             sizes = [x, y, w, h];
-
-            _layers.ForEach(l => l.Draw(x, y, w, h));
+            _layers.ForEach(l => l.Draw());
         }
 
         public void Update()

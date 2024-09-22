@@ -39,6 +39,30 @@ namespace GNSUsingCS.Elements
         }
         */
 
+        internal override void InternalPostDraw()
+        {
+            if (!_grapped)
+                return;
+
+            offsetRecalculate.Active = true;
+            bool preScissor = UseScissor;
+            UseScissor = false;
+            Recalculate();
+            int[] sizes = ApplicationManager.Instance.CurrentTab.sizes;
+            ScissorManager.GodScissor(sizes[0], sizes[1], sizes[2], sizes[3]); // fake god draw module thingy
+
+            DrawElement();
+            DrawChildren();
+
+            DrawRectangle(Dimensions.X, Dimensions.Y, Dimensions.W, Dimensions.H, new Color(0, 0, 0, 100));
+
+            ScissorManager.ExitScissor();
+
+            offsetRecalculate.Active = false;
+            UseScissor = preScissor;
+            Recalculate();
+        }
+
         private OffsetRecalculate offsetRecalculate;
         public GhostDraggable()
         {
@@ -47,7 +71,6 @@ namespace GNSUsingCS.Elements
         }
 
 
-        private bool _grapped = false;
         /* -- keep the idea while transitioning to modules
         internal override void Recalculate(int x, int y, int w, int h)
         {
@@ -60,12 +83,12 @@ namespace GNSUsingCS.Elements
         }
         */
 
+        private bool _grapped = false;
         internal override void UpdateElement()
         {
             if (_grapped && MouseManager.MouseVelocity.Length() > 0.01)
             {
                 offsetRecalculate.Offset += MouseManager.MouseVelocity;
-                Recalculate();
             }
 
             if (!_grapped && Instance is null && IsHovered && IsMouseButtonDown(MouseButton.Left))
@@ -76,6 +99,9 @@ namespace GNSUsingCS.Elements
             }
             if (!IsMouseButtonDown(MouseButton.Left))
             {
+                if (Instance == this)
+                    ActivateMethod("Released");
+
                 Instance = null;
                 _grapped = false;
             }

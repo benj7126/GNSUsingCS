@@ -12,10 +12,18 @@ namespace GNSUsingCS
 {
     internal class ApplicationManager
     {
+        public static ApplicationManager Instance;
         public static Random rand = new();
 
         private int _curTab = 0;
         private List<Tab> _tabs = [];
+
+        public Tab CurrentTab => _tabs[_curTab];
+
+        public ApplicationManager()
+        {
+            Instance = this;
+        }
 
         public void ChoiceTab()
         {
@@ -50,7 +58,7 @@ namespace GNSUsingCS
 
             BeginScissorMode(0, y, GetScreenWidth(), GetScreenHeight() - y);
 
-            _tabs[_curTab].Draw(0, y, GetScreenWidth(), GetScreenHeight() - y);
+            CurrentTab.Draw(0, y, GetScreenWidth(), GetScreenHeight() - y);
 
             EndScissorMode();
         }
@@ -75,18 +83,18 @@ namespace GNSUsingCS
             }
             else
             {
-                _tabs[_curTab].MouseCaptured(x, y);
+                CurrentTab.MouseCaptured(x, y);
             }
         }
 
         public void Update()
         {
-            _tabs[_curTab].Update();
+            CurrentTab.Update();
         }
 
         public void PreUpdate()
         {
-            _tabs[_curTab].PreUpdate();
+            CurrentTab.PreUpdate();
         }
     }
 }

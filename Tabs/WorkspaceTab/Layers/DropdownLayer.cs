@@ -14,7 +14,7 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
         public static (ElementLayer, Element)? Selection;
 
 
-        public override void Draw(int x, int y, int w, int h)
+        public override void Draw()
         {
             if (!Selection.HasValue)
                 return;

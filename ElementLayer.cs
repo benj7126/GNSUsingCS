@@ -18,14 +18,21 @@ namespace GNSUsingCS
 
         public virtual Element GetRightclickPanel() { return new Button(); }
 
-        public override void Draw(int x, int y, int w, int h) // i would need a "resize" event instead of this
+        public override void Draw()
         {
             for (int i = 0; i < Elements.Count; i++)
             {
                 LuaInterfacer.EnterElement(i, Elements[i]);
                 Elements[i].Draw();
             }
+
+            for (int i = 0; i < Elements.Count; i++)
+            {
+                LuaInterfacer.EnterElement(i, Elements[i]);
+                Elements[i].PostDraw();
+            }
         }
+
         public override void Resize(int x, int y, int w, int h)
         {
             Elements.ForEach(e => e.Recalculate(x, y, w, h));

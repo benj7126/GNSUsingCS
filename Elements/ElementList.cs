@@ -10,8 +10,6 @@ namespace GNSUsingCS.Elements
 {
     internal class ElementList : Element
     {
-        internal override bool UseScissor => false;
-
         public int ConstantHeight = -1; // if -1 then dynamic height
         public int Margin = 0;
 
@@ -21,6 +19,7 @@ namespace GNSUsingCS.Elements
         {
             Dimensions.Width.Set(0, 1f);
             Dimensions.Height.Set(0, 1f);
+            UseScissor = false;
             MouseCapture = new ParentMouseCapture();
         }
 
