@@ -17,7 +17,6 @@ namespace GNSUsingCS
 
         private int _curTab = 0;
         private List<Tab> _tabs = [];
-
         public Tab CurrentTab => _tabs[_curTab];
 
         public ApplicationManager()

@@ -62,7 +62,13 @@ namespace GNSUsingCS
                             end
                         end
                 
-                        return rawget(rawget(t, TabUUID .. NoteUUID .. ElementIndex), k);
+                        local element = rawget(t, TabUUID .. NoteUUID .. ElementIndex)
+                        
+                        if (element == nil) then
+                            return nil
+                        end
+                        
+                        return rawget(element, k);
                     end,
                 })
                 """);

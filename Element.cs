@@ -119,11 +119,17 @@ namespace GNSUsingCS
 
     internal abstract class Element
     {
-        internal Dictionary<string, Action> actions = [];
+        internal Dictionary<string, Action<object[]>> actions = [];
         public void ActivateMethod(string type, object[] args = null)
         {
+            int argSize = args is null ? 0 : args.Length;
+            object[] argsWithElement = new object[argSize+1];
+            argsWithElement[0] = this;
+            for (int i = 0; i < argSize; i++) 
+                argsWithElement[i+1] = args[i];
+
             if (actions.ContainsKey(type))
-                actions[type]();
+                actions[type](args);
             else
                 LuaInterfacer.TryCallMethod(type, args);
         }

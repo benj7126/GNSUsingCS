@@ -36,13 +36,16 @@ namespace GNSUsingCS
 
         public void Resize(int x, int y, int w, int h) { }
 
+
+        public bool ForceRecalc = false;
         public void Draw(int x, int y, int w, int h)
         {
             LuaInterfacer.EnterNote("");
             LuaInterfacer.EnterTab(UUID);
 
-            if (sizes[0] != x || sizes[1] != y || sizes[2] != w || sizes[3] != h)
+            if (sizes[0] != x || sizes[1] != y || sizes[2] != w || sizes[3] != h || ForceRecalc)
             {
+                ForceRecalc = false;
                 _layers.ForEach(l => l.Resize(x, y, w, h));
             }
 

@@ -37,12 +37,21 @@ namespace GNSUsingCS.Tabs.WorkspaceTab.Layers
                 tempLabel.Dimensions.Width.Set(0, 1f);
                 tempLabel.FontSize = 42;
 
-
-
                 ElementInstanceDisplay eid = new ElementInstanceDisplay(new ElementSettingsInstance(tempLabel));
                 draggable.RecalculateModule = new FitChildElementRecalculate(draggable.RecalculateModule, eid);
 
                 draggable.Children.Add(eid);
+
+                int _i = i;
+                draggable.actions.Add("Released", (objs) => {
+                    Element e = new ElementSettingsInstance(tempLabel).CreateElementFrom();
+                    // place in a note
+                    e.Dimensions.Left.Set((int)MouseManager.MousePosition.X, 0f);
+                    e.Dimensions.Top.Set((int)MouseManager.MousePosition.Y, 0f);
+
+                    layer.Elements.Add(e);
+                    ApplicationManager.Instance.CurrentTab.ForceRecalc = true;
+                });
 
                 /*
                 Button button = new Button();

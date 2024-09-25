@@ -66,7 +66,7 @@ namespace GNSUsingCS.Elements
         private OffsetRecalculate offsetRecalculate;
         public GhostDraggable()
         {
-            offsetRecalculate = new OffsetRecalculate(new DefaultRecalculate());
+            offsetRecalculate = new OffsetRecalculate(RecalculateModule);
             RecalculateModule = offsetRecalculate;
         }
 
@@ -97,7 +97,7 @@ namespace GNSUsingCS.Elements
                 _grapped = true;
                 offsetRecalculate.Offset = new();
             }
-            if (!IsMouseButtonDown(MouseButton.Left))
+            if (_grapped && !IsMouseButtonDown(MouseButton.Left))
             {
                 if (Instance == this)
                     ActivateMethod("Released");
