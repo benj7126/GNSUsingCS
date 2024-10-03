@@ -1,0 +1,3 @@
+Replace all/most elements currently created with only their most primary events in the form of an event-listener element.
+Recreate all elements as "custom-elements" to allow making more custom elements.
+When making notes only user "custom-elements" and let there be a folder-hierarchy for these elements.
