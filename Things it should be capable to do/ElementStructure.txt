@@ -1,3 +1,54 @@
 Replace all/most elements currently created with only their most primary events in the form of an event-listener element.
 Recreate all elements as "custom-elements" to allow making more custom elements.
-When making notes only user "custom-elements" and let there be a folder-hierarchy for these elements.
+When making notes only use "custom-elements" and let there be a folder-hierarchy for these elements.
+
+You have children, a list of name-of-elements and element objects, all elements have an index and you can find the index by name/id and the other way around.
+Index should be changeable in editor to layer things correctly - Should have all events be "hookable" (maby allow multiple methods per event)
+but 100% need to tell if a method has been invoked and then dont let other elements envoke it unless maby it has a bypass method or something.
+
+Element details:
+event-listener events:
+    OnClick
+    OnPress
+    OnRelease
+    OnScroll
+
+Box:
+    Pre-programmed.
+
+Label:
+    Pre-programmed.
+
+TextBox:
+    Pre-programmed.
+
+BaseButton:
+    Listener - event-listener
+        *code: function OnClick() print("button clicked") end
+        Box - box
+        Label - label
+
+ElementList:
+    Likely pre-programmed
+
+GhostDraggable:
+    Really dosent seem like something the program needs.
+
+TextContainer:
+    Empty - empty (? - empty container element)
+        Box - box
+        TextBox - text
+
+
+Layers details:
+Somehow allow for dynamically useable layers to be created.
+Mainly thinking for something like right click to get dropdown menu, where you pass it two method first one for list of options and second one for what to do with the selected option.
+
+Worspace details:
+Worspace should be programmable in "all ways", no clue what yet... and also define what layers it should contain.
+
+Tab details:
+They would ideally also be lua based, but it seems quite hard to create...
+
+
+All of the above in as much lua as possible.
