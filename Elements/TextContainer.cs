@@ -40,15 +40,5 @@ namespace GNSUsingCS.Elements
         {
             DrawModule = new ChildrenFirstDraw();
         }
-
-        internal override void SaveValues(ref SaveObject so)
-        {
-            so.Write(Text);
-        }
-
-        internal override void LoadValues(ref LoadObject lo)
-        {
-            Text = lo.Read();
-        }
     }
 }

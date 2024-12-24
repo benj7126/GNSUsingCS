@@ -19,18 +19,14 @@ namespace GNSUsingCS
 
             L.SetObjectToPath("print", FakePrint);
 
-            L.SetObjectToPath("GetCurElement", GetCurElement);
-
             L.DoString("""
-                local exceptions = { "TabUUID", "NoteUUID", "ElementIndex", "ClearElementCode", "print" }
+                local exceptions = { "ObjectID", "ClearObjectCode", "print" }
                 local getSetExceptions = { "G" }
 
-                TabUUID = ""
-                NoteUUID = ""
-                ElementIndex = ""
+                ObjectID = ""
 
                 function ClearElementCode()
-                    rawset(_G, TabUUID .. NoteUUID .. ElementIndex, {})
+                    rawset(_G, ObjectID, {})
                 end
                 
                 _G.G = {}
@@ -43,7 +39,7 @@ namespace GNSUsingCS
                             end
                         end
 
-                        rawset(rawget(t, TabUUID .. NoteUUID .. ElementIndex), k, v)
+                        rawset(rawget(t, ObjectID), k, v)
                     end,
                     __index = function (t, k)
                         if k == "this" then
@@ -62,7 +58,7 @@ namespace GNSUsingCS
                             end
                         end
                 
-                        local element = rawget(t, TabUUID .. NoteUUID .. ElementIndex)
+                        local element = rawget(t, ObjectID)
                         
                         if (element == nil) then
                             return nil
@@ -90,40 +86,18 @@ namespace GNSUsingCS
             Console.Write("\n");
         }
 
-        private static Element curElement;
-        private static Element GetCurElement()
+        public static void SetElementCode(string id, string text)
         {
-            return curElement;
-        }
-
-        public static void SetElementCode(string text)
-        {
+            L.SetObjectToPath("ObjectID", id);
             L.GetFunction("ClearElementCode").Call();
             L.DoString(text);
         }
 
-        public static void TryCallMethod(string name, params object[] args)
+        public static void TryCallMethod(string id, string name, params object[] args)
         {
-            Console.WriteLine(L[name]); // wtf... why'd this suddenly stop working..?
-
+            L.SetObjectToPath("ObjectID", id);
             if (L[name] is not null)
                 L.GetFunction(name).Call(args);
-        }
-
-        internal static void EnterElement(int idx, Element element)
-        {
-            curElement = element;
-            L.SetObjectToPath("ElementIndex", idx);
-        }
-
-        public static void EnterNote(string uuid)
-        {
-            L.SetObjectToPath("NoteUUID", uuid);
-        }
-
-        public static void EnterTab(string uuid)
-        {
-            L.SetObjectToPath("TabUUID", uuid);
         }
     }
 }

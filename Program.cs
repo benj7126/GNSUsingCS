@@ -3,10 +3,9 @@ using Raylib_cs;
 using GNSUsingCS;
 using System.Numerics;
 using System.Diagnostics;
-using GNSUsingCS.Tabs.WorkspaceTab;
-using GNSUsingCS.Tabs.ChoiceTab;
 using GNSUsingCS.Elements;
 using System.IO.Compression;
+using GNSUsingCS.Tabs;
 
 /*
 
@@ -91,10 +90,60 @@ Tab t = SaveAndLoadManager.LoadTab("Origin");
 
 if (t == null)
 {
+    WorkspaceTab wt = new WorkspaceTab();
+    t = wt;
+
+    Note n = new Note();
+
+    ObjectIDController.addElement(n);
+
+    n.Dimensions.Width.Set(400, 0);
+    n.Dimensions.Height.Set(400, 0);
+
+    n.Dimensions.Left.Set(100, 0.5f);
+    n.Dimensions.Top.Set(-200, 0.5f);
+
+    TextBox tb = new TextBox();
+
+    tb.Dimensions.Width.Set(0, 1);
+    tb.Dimensions.Height.Set(0, 1);
+
+    Box b = new Box();
+
+    b.Dimensions.Width.Set(0, 1);
+    b.Dimensions.Height.Set(0, 1);
+
+    n.Children.Add(b);
+    n.Children.Add(tb);
+
+    n.UpdateValues();
+
+    wt.Elements.Add(n);
+
+    NoteRef nr = new NoteRef(n.ID);
+    wt.Elements.Add(nr);
+
+    /*
+    nr.fieldsAndValues[nr.fieldsAndValues.First(v => {
+        return b.Background.Equals(v.Value);
+    }).Key] = Color.Green;
+
+    nr.fieldsAndValues[nr.fieldsAndValues.First(v => {
+        return nr.Dimensions.Left.Pixels.Equals(v.Value);
+    }).Key] = -50;
+    */
+
+    nr.fieldsAndValues.Add((b.GetType().GetField("Background"), b), Color.Green);
+    nr.fieldsAndValues.Add((n.Dimensions.Left.GetType().GetField("Pixels"), n.Dimensions.Left), -500);
+    
+    nr.fieldsAndValues.Add((tb.GetType().GetField("ParentID"), tb), nr.ID);
+
+    /*
     t = new ChoiceTab();
     t.UUID = "Origin";
 
     (t as ChoiceTab).SetTempTestThings();
+    */
 }
 
 AM.AddTab(t);
@@ -121,8 +170,11 @@ while (!WindowShouldClose())
 
     AM.Update();
 
+    AM.PostUpdate();
+
     // Draw
     BeginDrawing();
+    Console.WriteLine("post draw");
 
     ClearBackground(Color.White);
 

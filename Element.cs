@@ -1,6 +1,7 @@
 ﻿using GNSUsingCS.Elements.Modules.Draw;
 using GNSUsingCS.Elements.Modules.MouseCapture;
 using GNSUsingCS.Elements.Modules.Recalculate;
+using Raylib_cs;
 using System.Reflection;
 
 namespace GNSUsingCS
@@ -23,18 +24,6 @@ namespace GNSUsingCS
             StyleDimension sd = new StyleDimension();
             sd.Set(Pixels, Percent);
             return sd;
-        }
-
-        internal void SaveValues(ref SaveObject so)
-        {
-            so.Write(Pixels);
-            so.Write(Percent);
-        }
-
-        internal void LoadValues(ref LoadObject lo)
-        {
-            Pixels = lo.ReadInt();
-            Percent = lo.ReadFloat();
         }
     }
 
@@ -91,34 +80,12 @@ namespace GNSUsingCS
 
             return false;
         }
-
-        internal void SaveValues(ref SaveObject so)
-        {
-            Left.SaveValues(ref so);
-            Top.SaveValues(ref so);
-
-            Width.SaveValues(ref so);
-            Height.SaveValues(ref so);
-
-            so.Write(HAlign);
-            so.Write(VAlign);
-        }
-
-        internal void LoadValues(ref LoadObject lo)
-        {
-            Left.LoadValues(ref lo);
-            Top.LoadValues(ref lo);
-
-            Width.LoadValues(ref lo);
-            Height.LoadValues(ref lo);
-
-            HAlign = lo.ReadFloat();
-            VAlign = lo.ReadFloat();
-        }
     }
 
     internal abstract class Element
     {
+        public string ID = Guid.NewGuid().ToString();
+
         internal Dictionary<string, Action<object[]>> actions = [];
         public void ActivateMethod(string type, object[] args = null)
         {
@@ -131,81 +98,15 @@ namespace GNSUsingCS
             if (actions.ContainsKey(type))
                 actions[type](args);
             else
-                LuaInterfacer.TryCallMethod(type, args);
+                LuaInterfacer.TryCallMethod(ID, type, args);
         }
 
         public void LoadCode()
         {
-            LuaInterfacer.SetElementCode(Code);
+            LuaInterfacer.SetElementCode(ID, Code);
         }
 
-        internal void SaveFromObject(ref SaveObject so)
-        {
-            so.Write(GetType().FullName);
-            so.Write(Code);
-            Dimensions.SaveValues(ref so);
-            SaveValues(ref so);
-
-            foreach (Element c in Children)
-            {
-                c.SaveFromChild(ref so);
-            }
-        }
-
-        internal static Element LoadToObject(ref LoadObject lo)
-        {
-            string type = lo.Read();
-
-            Type t = typeof(Element).Assembly.GetType(type);
-            if (t is null)
-            {
-                throw new Exception("Type " + t + " not found");
-            }
-
-            Element e = (Element)Activator.CreateInstance(t);
-
-            e.Code = lo.Read();
-            e.Dimensions.LoadValues(ref lo);
-            e.LoadValues(ref lo);
-
-            foreach (Element c in e.Children)
-            {
-                c.LoadToChild(ref lo);
-            }
-
-            // e.LoadCode(); -- have to make sure the lua system links right...
-
-            return e;
-        }
-
-        internal void SaveFromChild(ref SaveObject so)
-        {
-            so.Write(Code);
-            Dimensions.SaveValues(ref so);
-            SaveValues(ref so);
-
-            foreach (Element c in Children)
-            {
-                c.SaveFromChild(ref so);
-            }
-        }
-
-        internal void LoadToChild(ref LoadObject lo)
-        {
-            Code = lo.Read();
-            Dimensions.LoadValues(ref lo);
-            LoadValues(ref lo);
-
-            foreach (Element c in Children)
-            {
-                c.LoadToChild(ref lo);
-            }
-        }
-
-        internal virtual void SaveValues(ref SaveObject so) { }
-        internal virtual void LoadValues(ref LoadObject lo) { }
-
-        internal ElementStyle Dimensions = new ElementStyle();
+        public ElementStyle Dimensions = new ElementStyle();
 
         [ConfigAttributes.CodeString]
         public string Code = "";
@@ -218,7 +119,11 @@ namespace GNSUsingCS
                                        // making it edit the save file seems hard, but making a folder for the tab uuid
                                        // and placing all elements in there seems plausible...
 
-        public List<Element> Children = [];
+        internal List<Element> Children = [];
+        public void addChild(Element e)
+        {
+            Children.Add(e);
+        }
 
         internal bool IsHovered = false;
 
@@ -227,7 +132,8 @@ namespace GNSUsingCS
 
         internal IDrawModule DrawModule = new ElementFirstDraw();
 
-        internal void Draw() { DrawModule.Draw(this); }
+        internal virtual void Draw() { DrawModule.Draw(this); }
+
         internal virtual void DrawElement() { }
         internal virtual void DrawChildren()
         {
@@ -249,7 +155,7 @@ namespace GNSUsingCS
         internal virtual void Recalculate(int x, int y, int w, int h) { RecalculateModule.Recalculate(x, y, w, h, this); }
         public void Recalculate() { Recalculate(parentSize[0], parentSize[1], parentSize[2], parentSize[3]); }
 
-        internal void Update()
+        internal virtual void Update()
         {
             UpdateElement();
             UpdateChildren();

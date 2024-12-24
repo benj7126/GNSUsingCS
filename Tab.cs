@@ -1,4 +1,5 @@
-﻿using Raylib_cs;
+﻿using GNSUsingCS.Tabs;
+using Raylib_cs;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
@@ -8,13 +9,11 @@ namespace GNSUsingCS
 {
     internal abstract class Tab
     {
-        protected List<Layer> _layers = [];
-
         public abstract string Name { get; }
 
         public int[] sizes = new int[4];
 
-        public string UUID = Guid.NewGuid().ToString(); // should probably have a thing that check for the loaded UUID's as well
+        public string ID = Guid.NewGuid().ToString(); // should probably have a thing that check for the loaded UUID's as well
                                                         // and then just return the instance if it already exists...
 
         public void DrawTab(ref int x, bool selected)
@@ -34,60 +33,35 @@ namespace GNSUsingCS
             x += (int)Settings.TabSettings.padding.X + (int)TextSize.X;
         }
 
-        public void Resize(int x, int y, int w, int h) { }
+        public virtual void Resize(int x, int y, int w, int h) { }
 
 
         public bool ForceRecalc = false;
-        public void Draw(int x, int y, int w, int h)
+        public virtual void Draw(int x, int y, int w, int h)
         {
-            LuaInterfacer.EnterNote("");
-            LuaInterfacer.EnterTab(UUID);
-
             if (sizes[0] != x || sizes[1] != y || sizes[2] != w || sizes[3] != h || ForceRecalc)
             {
                 ForceRecalc = false;
-                _layers.ForEach(l => l.Resize(x, y, w, h));
+                Resize(x, y, w, h);
             }
 
             sizes = [x, y, w, h];
-            _layers.ForEach(l => l.Draw());
         }
+        public virtual void PreUpdate() { }
 
-        public void Update()
+        public virtual void Update() { }
+        public virtual void PostUpdate()
         {
-            LuaInterfacer.EnterNote("");
-            LuaInterfacer.EnterTab(UUID);
-
-            _layers.ForEach(l => l.Update());
-
             if ((IsKeyDown(KeyboardKey.LeftControl) || IsKeyDown(KeyboardKey.RightControl)) && IsKeyPressed(KeyboardKey.S))
             {
                 SaveAndLoadManager.SaveTab(this);
-            }
-        }
-        public void PreUpdate()
-        {
-            LuaInterfacer.EnterNote("");
-            LuaInterfacer.EnterTab(UUID);
-
-            _layers.ForEach(l => l.PreUpdate());
-        }
-
-        public void MouseCaptured(int x, int y)
-        {
-            LuaInterfacer.EnterNote("");
-            LuaInterfacer.EnterTab(UUID);
-
-            for (int i = _layers.Count - 1; i >= 0; i--)
-            {
-                if (_layers[i].MouseCaptured(x, y))
+                if (this is WorkspaceTab wt)
                 {
-                    return;
+                    wt.SaveWorkspace();
                 }
             }
         }
 
-        public virtual void SaveData(ref SaveObject so) { }
-        public virtual void LoadData(ref LoadObject lo) { }
+        public virtual void MouseCaptured(int x, int y) { }
     }
 }

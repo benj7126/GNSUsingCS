@@ -283,7 +283,7 @@ namespace GNSUsingCS.ConfigAttributes
     {
         public override string SaveToString(string path, ZipArchive zipArchive)
         {
-            string fileName = "Assets/" + Guid.NewGuid().ToString() + ".txt";
+            string fileName = path + "Assets/" + Guid.NewGuid().ToString() + ".txt";
 
             ZipArchiveEntry contentEntry = zipArchive.CreateEntry(fileName);
             using (StreamWriter writer = new StreamWriter(contentEntry.Open()))
@@ -296,7 +296,7 @@ namespace GNSUsingCS.ConfigAttributes
 
         public override void LoadFromString(string loadstring, string path, ZipArchive zipArchive)
         {
-            using (StreamReader reader = new StreamReader(zipArchive.GetEntry(loadstring.Replace(" ", "")).Open()))
+            using (StreamReader reader = new StreamReader(path + zipArchive.GetEntry(loadstring.Replace(" ", "")).Open()))
             {
                 _value = reader.ReadToEnd();
             }

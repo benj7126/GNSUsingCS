@@ -4,8 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using GNSUsingCS.Tabs.ChoiceTab;
-using GNSUsingCS.Tabs.WorkspaceTab;
+using GNSUsingCS.Tabs;
 using Raylib_cs;
 
 namespace GNSUsingCS
@@ -23,12 +22,6 @@ namespace GNSUsingCS
         {
             Instance = this;
         }
-
-        public void ChoiceTab()
-        {
-            _tabs.Add(new ChoiceTab());
-        }
-
         public void AddWorkspace()
         {
             _tabs.Add(new WorkspaceTab());
@@ -86,14 +79,19 @@ namespace GNSUsingCS
             }
         }
 
+        public void PreUpdate()
+        {
+            CurrentTab.PreUpdate();
+        }
+
         public void Update()
         {
             CurrentTab.Update();
         }
 
-        public void PreUpdate()
+        public void PostUpdate()
         {
-            CurrentTab.PreUpdate();
+            CurrentTab.PostUpdate();
         }
     }
 }

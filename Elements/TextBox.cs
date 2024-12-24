@@ -18,10 +18,12 @@ namespace GNSUsingCS.Elements
         NoWrapping // no wrapping at all
     }
 
+    // TODO: dont think we will ever need a "label"..? - that cant even do multi line
+    //       might just want to have this be toggleable to non-writable and/or non-writable during "edit mode", if that becomes a thing.
     internal class TextBox : TextContainer, IInput // Also add a porgramming TextBox that auto corrects and displays possible values when writing lua.
     {
-        [ConfigAttributes.SubElement]
-        public Box Box;
+        // [ConfigAttributes.SubElement]
+        // public Box Box;
 
         private static Dictionary<string, List<Func<char, bool>>> RepeatSets = new()
         {
@@ -42,6 +44,9 @@ namespace GNSUsingCS.Elements
         private static int _savedRightHighlight = -1;
 
         private static bool justSelected = true;
+
+        public string ParentID = "";
+        string IInput.ParentNote() { return ParentID; }
 
         private enum HeldMode
         {
@@ -71,11 +76,13 @@ namespace GNSUsingCS.Elements
 
         public TextBox()
         {
-            Box = new Box();
-            Box.Dimensions.Width.Set(0, 1);
-            Box.Dimensions.Height.Set(0, 1);
+            /*
+            Box = new EventListener();
+            EventListener.Dimensions.Width.Set(0, 1);
+            EventListener.Dimensions.Height.Set(0, 1);
 
-            Children.Add(Box);
+            Children.Add(EventListener);
+            */
         }
 
         internal override void PostRecalculate(int x, int y, int w, int h)

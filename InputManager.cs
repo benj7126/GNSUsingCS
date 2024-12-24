@@ -24,6 +24,7 @@ namespace GNSUsingCS
         ];
 
         private static IInput? _inputObject;
+        private static string inputIDSepperator = "";
 
         private static KeyboardKey _specialHeldKey;
         private static float _heldRepeatTimer;
@@ -31,16 +32,19 @@ namespace GNSUsingCS
         public static void SetInput(IInput obj)
         {
             _inputObject = obj;
+            inputIDSepperator = obj.ParentNote();
+            Console.WriteLine(inputIDSepperator + " - " + obj.ParentNote());
         }
 
         public static bool CheckSelected(IInput obj)
         {
-            return _inputObject == obj;
+            return _inputObject == obj && inputIDSepperator == obj.ParentNote();
         }
 
         public static void ClearInput()
         {
             _inputObject = null;
+            inputIDSepperator = "";
         }
 
         public static void Update()
@@ -127,5 +131,7 @@ namespace GNSUsingCS
         /// The InputManager also restricts input to only go to a single element at a time.
         /// </summary>
         internal abstract void IncommingSpecialKey(KeyboardKey key, List<KeyAddition> additions);
+
+        internal virtual string ParentNote() { return ""; }
     }
 }

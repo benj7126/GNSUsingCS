@@ -7,18 +7,14 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GNSUsingCS.Tabs.ChoiceTab
+namespace GNSUsingCS.Tabs
 {
     internal class NodeManagerTab : Tab
     {
         public override string Name => "NodeManagerTab";
 
-        ElementLayer elementLayer;
-
         public NodeManagerTab()
         {
-            elementLayer = new([]);
-            _layers = [elementLayer];
         }
     }
 }
